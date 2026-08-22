@@ -26,5 +26,5 @@ data class GameWithRosters(
 )
 fun GameWithRosters.hash(){
     val sorted = this.roster.map { it.playerId }.sortedBy { it.toString() }
-    AppRepository.Companion.generateRosterHash(sorted)
+    AppRepository.generateRosterHash(sorted)
 }

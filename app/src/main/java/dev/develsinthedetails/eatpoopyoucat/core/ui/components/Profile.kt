@@ -170,7 +170,7 @@ fun generatePixelProfile2Bit(uuid: Uuid): List<String> {
 @Preview
 @Composable
 fun TwoBitTest(){
-    Column() {
+    Column {
         PixelArtImage(
             generatePixelProfile2Bit(Uuid.random()),
             PIXEL_PALETTE_2_BIT,
@@ -200,7 +200,7 @@ fun TwoBitTest(){
 @Preview
 @Composable
 fun FourBitTest(){
-    Column() {
+    Column {
         PixelArtImage(
             generatePixelProfile4Bit(Uuid.random()),
             PIXEL_PALETTE_4_BIT,
