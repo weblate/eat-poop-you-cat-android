@@ -14,10 +14,6 @@ enum class GameMode {
     UNKNOWN, LOCAL, LAN, INET
 }
 
-enum class DrawMode {
-    Draw, Erase
-}
-
 
 val PIXEL_PALETTE_4_BIT = mapOf(
     'A' to Color(0, 0, 0),
@@ -43,3 +39,4 @@ val PIXEL_PALETTE_2_BIT = mapOf(
     'C' to Color.Blue,
     'D' to Color.Black,
 )
+

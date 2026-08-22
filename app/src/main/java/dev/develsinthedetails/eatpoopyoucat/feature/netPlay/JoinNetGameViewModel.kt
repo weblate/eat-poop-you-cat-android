@@ -47,13 +47,17 @@ class JoinNetGameViewModel(
     fun onYesPlay() {
         viewModelScope.launch {
             _isLoading.value = true
-            viewModelScope.launch {
-                val game = client.getGame(playerAddress!!.toUri(), gameId!!)
-                if (game !==null) {
-                    repository.updateGame(game.game)
-                    repository.updateRosters(game.roster)
-             }
+            if (playerAddress != null && gameId != null)
+                viewModelScope.launch {
+                    val game = client.getGame(playerAddress!!.toUri(), gameId!!)
+                    if (game !==null) {
+                        repository.updateGame(game.game)
+                        repository.updateRosters(game.roster)
+                    }
 
+                }
+            else{
+                TODO() // error
             }
             _isLoading.value = false
 

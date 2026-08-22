@@ -71,8 +71,10 @@ enum class EntryType {
 
 val Entry.type: EntryType
     get() {
-        return if (this.sequence%2 == 0)
+        return if (this.sequence % 2 == 0 && !this.sentence.isNullOrBlank())
             EntryType.Sentence
-        else
+        else if (this.drawing != null)
             EntryType.Drawing
+        else
+            EntryType.Unknown
     }

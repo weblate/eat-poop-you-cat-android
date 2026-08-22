@@ -71,8 +71,8 @@ fun PreviousGameScreen(
     onImportGames: ManagedActivityResultLauncher<String, Uri?>,
 ) {
     val game by viewModel.gameWithEntries.observeAsState(initial = null)
-
     val lastEntry = game?.entries?.last()
+
     PreviousGameScreen(
         modifier = modifier,
         entries = game?.entries,
@@ -82,7 +82,7 @@ fun PreviousGameScreen(
                 lastEntry?.type ?: EntryType.Unknown
             )
         },
-        onBackupGame = { onBackupGame(listOf(game!!)) },
+        onBackupGame = { onBackupGame(listOf(game!!) ) },
         onImportGame = onImportGames,
         onBack = onBack,
     )

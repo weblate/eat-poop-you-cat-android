@@ -56,10 +56,10 @@ class ImageExport(
 
         entries.forEach {
             if (it.type == EntryType.Sentence) {
-                bitmaps.add(sentenceBitmap(it.sentence!!))
+                bitmaps.add(sentenceBitmap(it.sentence!!)) // it.type checks for nulls
             }
             if (it.type == EntryType.Drawing) {
-                bitmaps.add(drawingBitmap(it.drawing!!))
+                bitmaps.add(drawingBitmap(it.drawing!!)) // it.type checks for nulls
             }
             if (it.createdAt != null || it.localPlayerName != null)
                 bitmaps.add(metadataBitmap(it.createdAt, it.localPlayerName))

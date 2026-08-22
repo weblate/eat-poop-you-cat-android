@@ -15,7 +15,6 @@ import dev.develsinthedetails.eatpoopyoucat.feature.previousGames.PreviousGamesV
 import dev.develsinthedetails.eatpoopyoucat.feature.sentence.SentenceViewModel
 import dev.develsinthedetails.eatpoopyoucat.feature.setup.HomeViewModel
 import dev.develsinthedetails.eatpoopyoucat.feature.setup.NewGameViewModel
-import dev.develsinthedetails.eatpoopyoucat.feature.setup.NicknameViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -30,7 +29,6 @@ val appModule = module {
     viewModelOf(::PreviousGamesViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::DrawViewModel)
-    viewModelOf(::NicknameViewModel)
     viewModelOf(::ImportGamesViewModel)
     viewModelOf(::InProgressGamesViewModel)
     viewModelOf(::StartNetGameViewModel)

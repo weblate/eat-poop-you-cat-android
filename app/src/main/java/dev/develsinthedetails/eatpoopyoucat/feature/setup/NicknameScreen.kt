@@ -1,162 +1,104 @@
 package dev.develsinthedetails.eatpoopyoucat.feature.setup
 
 import android.content.res.Configuration
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PersonAddAlt
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.develsinthedetails.eatpoopyoucat.R
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.AppButton
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.ErrorText
-import dev.develsinthedetails.eatpoopyoucat.core.ui.components.Scaffolds
-import dev.develsinthedetails.eatpoopyoucat.core.ui.components.SpinnerScreen
 import dev.develsinthedetails.eatpoopyoucat.core.ui.theme.AppTheme
-import dev.develsinthedetails.eatpoopyoucat.data.models.EntryType
-import dev.develsinthedetails.eatpoopyoucat.data.models.type
-import org.koin.compose.viewmodel.koinViewModel
-import kotlin.uuid.Uuid
 
 @Composable
-fun NicknameScreen(
-    viewModel: NicknameViewModel = koinViewModel(),
-    onSubmit: (Uuid, EntryType, String) -> Unit,
-    onEnd: (Uuid) -> Unit,
-) {
-    val hardcodedNames = LocalResources.current.getStringArray(R.array.nicknames).toList()
-    val fallbackName = stringResource(R.string.oof)
-
-    val focusRequester = remember { FocusRequester() }
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    if (state is EntryUiState.Loading)
-        SpinnerScreen()
-    else if (state is EntryUiState.Content) {
-        val previousEntry = (state as EntryUiState.Content).previousEntry
-        val nickname = (state as EntryUiState.Content).nickname
-        viewModel.validateAndAutoAssignNickname(hardcodedNames, fallbackName)
-        NicknameScreen(
-            nickname = nickname,
-            previousNicknames = (state as EntryUiState.Content).previousNicknames,
-            onChange = { viewModel.updateNickname(it) },
-            onSubmit = {
-                if (viewModel.validateAndAutoAssignNickname(hardcodedNames, fallbackName)) {
-                    onSubmit(previousEntry.id, previousEntry.type , nickname)
-                }
-            },
-            onEnd = {onEnd(previousEntry.gameId)},
-            nicknameError = (state as EntryUiState.Content).nicknameError,
-            focusRequester = focusRequester
-        )
-    }
-}
-
-@Composable
-fun NicknameScreen(
-    nickname: String,
+fun NicknameColumn(
+    nickname: String?,
     previousNicknames: List<String>,
     onChange: (String) -> Unit,
     onSubmit: () -> Unit,
-    onEnd: () -> Unit,
     nicknameError: Int?,
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
-    Scaffolds.InGame(
-        title = stringResource(R.string.new_player_prompt),
-        onEnd = onEnd
-    ) { paddingValues ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(ScrollState(0)),
+    Column(
+        modifier = Modifier
+            .padding(10.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(10.dp)
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = stringResource(R.string.nickname_prompt),
-                        Modifier.padding(bottom = 24.dp),
-                        fontSize = 20.sp
-                    )
+            Text(
+                text = stringResource(R.string.nickname_prompt),
+                Modifier.padding(bottom = 24.dp),
+                fontSize = 20.sp
+            )
+        }
+        if (previousNicknames.isNotEmpty()) {
+            Text(stringResource(R.string.previous_nicknames))
+            Column(modifier = Modifier.padding(start = 10.dp, bottom = 10.dp)) {
+                previousNicknames.forEach { message ->
+                    Text(message)
                 }
-                if (previousNicknames.isNotEmpty()) {
-                    Text(stringResource(R.string.previous_nicknames))
-                    Column(modifier = Modifier.padding(start = 10.dp, bottom = 10.dp)) {
-                        previousNicknames.forEach { message ->
-                            Text(message)
-                        }
-                    }
-                }
-                if (nicknameError != null) {
-                    ErrorText(true, stringResource(nicknameError))
-                }
-                Column {
-                    Row {
-                        OutlinedTextField(
-                            value = nickname,
-                            onValueChange = onChange,
-                            keyboardOptions = KeyboardOptions.Default.copy(
-                                imeAction = ImeAction.Done
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onDone = { onSubmit() }),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(.6f)
-                                .focusRequester(focusRequester),
-                            enabled = true,
-                            readOnly = false,
-                            shape = RoundedCornerShape(8.dp),
+            }
+        }
+        if (nicknameError != null) {
+            ErrorText(true, stringResource(nicknameError))
+        }
+        Column {
+            Row {
+                OutlinedTextField(
+                    value = nickname?:"",
+                    onValueChange = onChange,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { onSubmit() }),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(.6f)
+                        .focusRequester(focusRequester),
+                    enabled = true,
+                    readOnly = false,
+                    shape = RoundedCornerShape(8.dp),
 
-                            label = {
-                                Text(
-                                    stringResource(R.string.enter_nickname_prompt),
-                                    modifier = modifier
-                                )
-                            },
+                    label = {
+                        Text(
+                            stringResource(R.string.enter_nickname_prompt),
+                            modifier = modifier
                         )
-                    }
-                    Row(modifier = Modifier) {
-                        AppButton(
-                            imageVector = Icons.Rounded.PersonAddAlt,
-                            modifier = modifier.fillMaxWidth(),
-                            text = R.string.that_s_me,
-                            iconDescription = R.string.that_s_me,
-                            onClick = onSubmit,
-                        )
-                    }
-                }
+                    },
+                )
+            }
+            Row(modifier = Modifier) {
+                AppButton(
+                    imageVector = Icons.Rounded.PersonAddAlt,
+                    modifier = modifier.fillMaxWidth(),
+                    text = R.string.that_s_me,
+                    iconDescription = R.string.that_s_me,
+                    onClick = onSubmit,
+                )
             }
         }
     }
@@ -173,13 +115,12 @@ fun NicknamePreview() {
     listOfNicknames.addAll(stringArrayResource(id = R.array.nicknames).toList())
     AppTheme {
         Surface {
-            NicknameScreen(
+            NicknameColumn(
                 stringResource(id = R.string.oof),
                 listOfNicknames,
                 {},
-                {}, {},
-                null,
-                focusRequester
+                {}, 0,
+                focusRequester,
             )
         }
     }
@@ -192,13 +133,12 @@ fun NicknamePreviewEmpty() {
     val listOfNicknames = stringArrayResource(id = R.array.nicknames).toList()
     AppTheme {
         Surface {
-            NicknameScreen(
+            NicknameColumn(
                 stringResource(id = R.string.oof),
                 listOfNicknames,
                 {},
-                {}, {},
-                R.string.no_nickname_chosen_warning,
-                focusRequester
+                {}, 0,
+                focusRequester,
             )
         }
     }
@@ -211,13 +151,12 @@ fun NicknamePreviewEmptyNobody() {
     val listOfNicknames = listOf<String>()
     AppTheme {
         Surface {
-            NicknameScreen(
-                "",
+            NicknameColumn(
+                stringResource(id = R.string.oof),
                 listOfNicknames,
                 {},
-                {}, {},
-                null,
-                focusRequester
+                {}, 0,
+                focusRequester,
             )
         }
     }

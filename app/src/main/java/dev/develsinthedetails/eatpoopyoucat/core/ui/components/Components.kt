@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -97,21 +98,28 @@ fun SubmitButton(
 @Composable
 fun ErrorText(isError: Boolean, textToDisplay: String, errorDetails: String = "") {
 
-    if (isError) {
-        Column(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)) {
-            Text(
-                text = textToDisplay,
-                color = MaterialTheme.colorScheme.error,
-            )
-            if (errorDetails.isNotBlank())
-                Text(
-                    text = errorDetails,
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 11.sp
-                )
-        }
+    val text = if (!isError) "" else textToDisplay
+    val details = if (!isError) "" else errorDetails
+    Column(
+        modifier = Modifier.padding(top = 15.dp, bottom = 15.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = text,
+            color = MaterialTheme.colorScheme.error,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        Text(
+            text = details,
+            color = MaterialTheme.colorScheme.error,
+            fontSize = 11.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,7 +128,8 @@ fun ConfirmDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
-    BasicAlertDialog(onDismissRequest = { onDismiss() },
+    BasicAlertDialog(
+        onDismissRequest = { onDismiss() },
         modifier = Modifier.fillMaxWidth(),
         properties = DialogProperties(),
         content = {

@@ -47,8 +47,7 @@ import kotlin.uuid.Uuid
 fun NewGameScreen(
     viewModel: NewGameViewModel = koinViewModel(),
     onBack: () -> Unit,
-    onNetGame: (Uuid, GameMode) -> Unit,
-    onLocal: (Uuid) -> Unit,
+    onNewGame: (Uuid, GameMode) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -66,23 +65,20 @@ fun NewGameScreen(
         )
     }
 
-    val permissionLauncher: ManagedActivityResultLauncher<String, Boolean> = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        hasNotificationPermission = isGranted
-    }
+    val permissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            hasNotificationPermission = isGranted
+        }
 
     NewGameScreen(
         hasNotificationPermission,
         permissionLauncher,
         onBack = onBack,
-        onNetGame = { gameMode: GameMode ->
+        onNewGame = { gameMode: GameMode ->
             viewModel.saveNewGame(gameMode)
-            onNetGame(viewModel.gameId, gameMode)
-        },
-        onLocal = {
-            viewModel.saveNewGame(GameMode.LOCAL)
-            onLocal(viewModel.entryId)
+            onNewGame(viewModel.gameId, gameMode)
         }
     )
 }
@@ -92,8 +88,7 @@ fun NewGameScreen(
     hasNotificationPermission: Boolean,
     permissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
     onBack: () -> Unit,
-    onNetGame: (GameMode) -> Unit,
-    onLocal: () -> Unit,
+    onNewGame: (GameMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -124,7 +119,11 @@ fun NewGameScreen(
                             .align(alignment = Alignment.CenterHorizontally)
                     )
                     Text("Play by passing this device", textAlign = TextAlign.Center)
-                    StartGame(onLocal, defaultModifier)
+                    StartGame(
+                        { onNewGame(GameMode.LOCAL) },
+                        R.string.dialog_start_game,
+                        defaultModifier
+                    )
                 }
                 HorizontalDivider(Modifier.padding(20.dp), 3.dp)
 
@@ -156,9 +155,9 @@ fun NewGameScreen(
                             .align(alignment = Alignment.CenterHorizontally)
                     )
                     Text("Play on multiple devices on a shared network")
-                    Next(onStartGame = {
-                        onNetGame(GameMode.LAN)
-                    }, defaultModifier)
+                    StartGame(onStartGame = {
+                        onNewGame(GameMode.LAN)
+                    }, R.string.next, defaultModifier)
                 }
 
                 HorizontalDivider(Modifier.padding(20.dp), 3.dp)
@@ -180,9 +179,9 @@ fun NewGameScreen(
                         modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                         textAlign = TextAlign.Center
                     )
-                    Next(onStartGame = {
-                        onNetGame(GameMode.INET)
-                    }, defaultModifier)
+                    StartGame(onStartGame = {
+                        onNewGame(GameMode.INET)
+                    }, R.string.next, defaultModifier)
                 }
             }
         }
@@ -192,24 +191,13 @@ fun NewGameScreen(
 @Composable
 fun StartGame(
     onStartGame: () -> Unit,
+    stringResourceId: Int,
     modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onStartGame, modifier = modifier
     ) {
-        Text(stringResource(id = R.string.dialog_start_game))
-    }
-}
-
-@Composable
-fun Next(
-    onStartGame: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Button(
-        onClick = onStartGame, modifier = modifier
-    ) {
-        Text(stringResource(R.string.next))
+        Text(stringResource(stringResourceId))
     }
 }
 
@@ -221,19 +209,19 @@ fun NewGamePreview() {
 
     // Check permission status immediately upon composition
     var hasNotificationPermission = false
-    val permissionLauncher: ManagedActivityResultLauncher<String, Boolean> = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        hasNotificationPermission = isGranted
-    }
+    val permissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            hasNotificationPermission = isGranted
+        }
     AppTheme {
         Surface {
             NewGameScreen(
                 hasNotificationPermission = hasNotificationPermission,
                 permissionLauncher = permissionLauncher,
                 onBack = {},
-                onNetGame = {},
-                onLocal = { },
+                onNewGame = {},
             )
         }
     }

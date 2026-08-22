@@ -9,10 +9,8 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -34,7 +32,6 @@ import dev.develsinthedetails.eatpoopyoucat.feature.sentence.SentenceScreen
 import dev.develsinthedetails.eatpoopyoucat.feature.setup.CreditsScreen
 import dev.develsinthedetails.eatpoopyoucat.feature.setup.HomeScreen
 import dev.develsinthedetails.eatpoopyoucat.feature.setup.NewGameScreen
-import dev.develsinthedetails.eatpoopyoucat.feature.setup.NicknameScreen
 import dev.develsinthedetails.eatpoopyoucat.feature.setup.PrivacyPolicyScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -76,16 +73,13 @@ data object PrivacyPolicy
 data object NewGame
 
 @Serializable
-data class Nickname(val previousEntryId: Uuid)
-
-@Serializable
 data class PreviousGameDetails(val gameId: Uuid)
 
 @Serializable
-data class Sentence(val previousEntryId: Uuid, val nickname: String? = null)
+data class Sentence(val gameId: Uuid, val gameMode: GameMode)
 
 @Serializable
-data class Draw(val previousEntryId: Uuid, val nickname: String? = null)
+data class Draw(val gameId: Uuid, val gameMode: GameMode)
 
 
 @Serializable
@@ -103,9 +97,7 @@ fun NavGraph(appSettings: AppSettings = koinInject()) {
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-    val useNicknames by appSettings.useNicknamesFlow.collectAsStateWithLifecycle(
-        initialValue = false
-    )
+
     NavHost(
         navController = navController,
         startDestination = Home
@@ -139,14 +131,15 @@ fun NavGraph(appSettings: AppSettings = koinInject()) {
                 onBack = {
                     navController.navigate(Home)
                 },
-                onNetGame = { gameId: Uuid, gameMode: GameMode ->
-                    navController.navigate(StartNetGame(gameId, gameMode))
-                },
-                onLocal = { previousEntryId: Uuid ->
-                    if (useNicknames) {
-                        navController.navigate(Nickname(previousEntryId))
-                    } else {
-                        navController.navigate(Sentence(previousEntryId, null))
+                onNewGame = { gameId: Uuid, gameMode: GameMode ->
+                    when (gameMode) {
+                        GameMode.LOCAL -> {
+                            navController.navigate(Sentence(gameId, gameMode = GameMode.LOCAL))
+                        }
+
+                        else -> {
+                            navController.navigate(StartNetGame(gameId, gameMode))
+                        }
                     }
                 },
             )
@@ -162,28 +155,42 @@ fun NavGraph(appSettings: AppSettings = koinInject()) {
             )
         ) {
             SentenceScreen(
-                onNavigateToDraw = { previousEntryId, gameMode ->
-                    if (useNicknames && gameMode == GameMode.LOCAL) {
-                        navController.navigate(Nickname(previousEntryId)) {
-                            popUpTo<Home>()
+                toDraw = { gameId, gameMode  ->
+                    when (gameMode) {
+                        GameMode.LOCAL -> {
+                            navController.navigate(
+                                Draw(
+                                    gameId,
+                                    gameMode
+                                )
+                            ) {
+                                popUpTo<Home>()
+                            }
                         }
-                    } else {
-                        navController.navigate(
-                            Draw(
-                                previousEntryId,
-                                nickname = null
-                            )
-                        ) {
-                            popUpTo<Home>()
+
+                        else -> {
+                            navController.navigate(InProgressGameDetails(gameId)) {
+                                popUpTo<InProgressGames>()
+                            }
                         }
                     }
                 },
-                onNavigateToHome = {
+                toHome = {
                     navController.navigate(Home)
                 },
-                onNavigateToEndedGame = { gameId ->
-                    navController.navigate(PreviousGameDetails(gameId)) {
-                        popUpTo<Home>()
+                toEndedGame = { gameId, gameMode ->
+                    when (gameMode) {
+                        GameMode.LOCAL -> {
+                            navController.navigate(PreviousGameDetails(gameId)) {
+                                popUpTo<Home>()
+                            }
+                        }
+
+                        else -> {
+                            navController.navigate(InProgressGameDetails(gameId)) {
+                                popUpTo<InProgressGames>()
+                            }
+                        }
                     }
                 }
             )
@@ -199,26 +206,20 @@ fun NavGraph(appSettings: AppSettings = koinInject()) {
             )
         ) {
             DrawScreen(
-                onNavigateToSentence = { previousEntryId, gameMode, gameId ->
+                toSentence = { gameId, gameMode ->
                     when {
-                        useNicknames && gameMode == GameMode.LOCAL -> {
-                            navController.navigate(Nickname(previousEntryId)) {
-                                popUpTo<Home>()
-                            }
-                        }
-
                         gameMode == GameMode.LOCAL -> {
-                            navController.navigate(Sentence(previousEntryId))
+                            navController.navigate(Sentence(gameId, gameMode))
                         }
 
                         else -> {
-                            navController.navigate(InProgressGameDetails(gameId = gameId!!))
+                            navController.navigate(InProgressGameDetails(gameId = gameId))
                         }
                     }
                 },
-                onNavigateToEndedGame = { gameId ->
+                toEndedGame = { gameId ->
                     navController.navigate(PreviousGameDetails(gameId)) {
-                        popUpTo<Home>()
+                        popUpTo<PreviousGames>()
                     }
                 }
             )
@@ -256,12 +257,11 @@ fun NavGraph(appSettings: AppSettings = koinInject()) {
             )
         ) {
             PreviousGameScreen(
-                onContinueGame = { previousEntryId:Uuid, entryType: EntryType ->
-                    if (entryType == EntryType.Sentence){
-                        navController.navigate(Draw(previousEntryId))
-                    }
-                    else{
-                        navController.navigate(Sentence(previousEntryId))
+                onContinueGame = { previousEntryId: Uuid, entryType: EntryType ->
+                    if (entryType == EntryType.Sentence) {
+                        navController.navigate(Draw(previousEntryId, gameMode = GameMode.LOCAL))
+                    } else {
+                        navController.navigate(Sentence(previousEntryId, gameMode = GameMode.LOCAL))
                     }
                 },
                 onBackupGame = onBackupGames(coroutineScope = coroutineScope, context = context),
@@ -310,18 +310,6 @@ fun NavGraph(appSettings: AppSettings = koinInject()) {
 
         composable<InProgressGameDetails>(typeMap = mapOf(typeOf<Uuid>() to UuidNavType)) {
             InProgressGameDetailsScreen(onBack = { navController.navigate(InProgressGames) })
-        }
-
-        composable<Nickname>(typeMap = mapOf(typeOf<Uuid>() to UuidNavType)) {
-            NicknameScreen(
-                onEnd = { navController.navigate(PreviousGames) },
-                onSubmit = { previousEntryId: Uuid, entryType: EntryType, nickname: String ->
-                    if (entryType == EntryType.Sentence)
-                        navController.navigate(Draw(previousEntryId, nickname))
-                    else
-                        navController.navigate(Sentence(previousEntryId, nickname))
-                }
-            )
         }
     }
 }

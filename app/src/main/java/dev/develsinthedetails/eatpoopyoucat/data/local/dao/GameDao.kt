@@ -74,5 +74,4 @@ interface GameDao {
     @Transaction
     @Query("SELECT * FROM game where id=:id")
     suspend fun get(id: Uuid): Game
-
 }

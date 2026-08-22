@@ -53,6 +53,14 @@ class AppRepository(
     suspend fun getGameWithEntriesAsync(id: Uuid) = gameDao.getWithEntriesAsync(id)
 
     suspend fun updateGame(game: Game) = gameDao.updateGame(game)
+    suspend fun getGameIdFromEntry(entryId: Uuid): Uuid = entryDao.getGameId(entryId)
+
+    suspend fun getPreviouslyUsedNicknames(gameId: Uuid): List<String> {
+        val nicknames = getGameWithEntriesAsync(gameId)
+            .entries
+            .mapNotNull { it.localPlayerName?.takeIf { name -> name.isNotBlank() } }
+        return nicknames
+    }
 
     // ==========================================
     // Entry functions
@@ -62,12 +70,13 @@ class AppRepository(
 
     fun getEntry(id: Uuid) = entryDao.get(id)
     suspend fun getEntryAsync(id: Uuid) = entryDao.getAsync(id)
-    suspend fun updateEntry(entry: Entry) = entryDao.update(entry)
+    suspend fun upsertEntry(entry: Entry) = entryDao.upsert(entry)
     suspend fun getEntriesAsync(gameId: Uuid) =
         entryDao.getAllEntriesByGameAsync(gameId)
 
     suspend fun getMissingEntriesAsync(gameId: Uuid, knownTurns: List<Int>) =
         entryDao.getMissingEntriesAsync(gameId, knownTurns)
+    suspend fun getLastEntry(gameId: Uuid) = entryDao.getLast(gameId)
 
     // ==========================================
     // Roster functions

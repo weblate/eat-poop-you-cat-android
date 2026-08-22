@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.room.Update
+import androidx.room.Upsert
 import dev.develsinthedetails.eatpoopyoucat.data.models.Entry
 import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.Uuid
@@ -54,6 +54,14 @@ interface EntryDao {
     suspend fun insertAll(games: List<Entry>)
 
     @Transaction
-    @Update
-    suspend fun update(entry: Entry)
+    @Upsert
+    suspend fun upsert(entry: Entry)
+
+    @Transaction
+    @Query("SELECT gameId FROM entry where id=:id")
+    suspend fun getGameId(id: Uuid): Uuid
+
+    @Transaction
+    @Query("SELECT * FROM entry WHERE gameId=:gameId ORDER BY sequence DESC LIMIT 1")
+    suspend fun getLast(gameId: Uuid): Entry?
 }
