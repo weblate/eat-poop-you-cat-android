@@ -49,7 +49,7 @@ interface GameDao {
 
     @Transaction
     @Query("SELECT * FROM game where id=:id")
-    fun getGameWithRosters(id: Uuid): GameWithRosters?
+    suspend fun getGameWithRosters(id: Uuid): GameWithRosters?
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.IGNORE)

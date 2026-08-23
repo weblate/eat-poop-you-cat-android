@@ -5,61 +5,124 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.develsinthedetails.eatpoopyoucat.app.AppSettings
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.NetworkUtils
 import dev.develsinthedetails.eatpoopyoucat.data.AppRepository
+import dev.develsinthedetails.eatpoopyoucat.data.models.Player
+import dev.develsinthedetails.eatpoopyoucat.data.models.Roster
+import dev.develsinthedetails.eatpoopyoucat.feature.netPlay.StartNetGameViewModel.ServerAction
 import dev.develsinthedetails.eatpoopyoucat.feature.netPlay.services.Client
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
+
+data class JoinUiState(
+    val gameId: Uuid,
+    val player: Player = Player(Uuid.NIL, ""),
+    val address: String = "Server Offline",
+
+    val isError: Boolean = false,
+    val isLoading: Boolean = true,
+    val timeout: Int = 5,
+    val turnTimeout: Int = 5,
+
+    val nicknameError: Int? = null,
+    val nicknameIsSatisfied: Boolean = false,
+
+    )
+
 class JoinNetGameViewModel(
-    private val savedStateHandle: SavedStateHandle,
+    private val state: SavedStateHandle,
     private val repository: AppRepository,
     private val appSettings: AppSettings,
     private val client: Client
 ) : ViewModel() {
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
-
-    private val _nickname = MutableStateFlow<String>("")
-    val nickname = _nickname.asStateFlow()
-
     private var gameId: Uuid? = null
     private var playerAddress: String? = null
+    private val _uiState = MutableStateFlow(
+        JoinUiState(
+            gameId = Uuid.NIL,
+            address = NetworkUtils.getLocalIpAddress() ?: "Server Offline"
+        )
+    )
+    val uiState: StateFlow<JoinUiState> = _uiState.asStateFlow()
+    private val _serverAction = MutableStateFlow<ServerAction>(ServerAction.Idle)
+    val serverAction: StateFlow<ServerAction> = _serverAction.asStateFlow()
+
+    fun onStartServerRequested(isWifiOn: Boolean, ipAddress: String?) {
+        if (!isWifiOn || ipAddress == null) {
+            _serverAction.value = ServerAction.PromptWifiTurnOn
+        } else {
+            _serverAction.value = ServerAction.StartService(ipAddress)
+        }
+    }
+
+    fun resetAction() {
+        _serverAction.value = ServerAction.Idle
+    }
+
+    fun updateAddress(link: String?) {
+        _uiState.update { state ->
+            state.copy(
+                address = link ?: ""
+            )
+        }
+    }
 
     init {
         viewModelScope.launch {
-            // todo all the network stuff
-
-            _isLoading.value = false
+            val player = repository.getPlayer(appSettings.playerId)
+            if (player != null) {
+                _uiState.update { it.copy(player = player) }
+            }
         }
     }
 
     fun initFromDeepLink(parsedGameId: Uuid, parsedAddress: String) {
         this.gameId = parsedGameId
         this.playerAddress = parsedAddress
+
+        _uiState.update { it.copy(isLoading = false) }
+
     }
 
     fun updateNickname(newName: String) {
-        _nickname.value = newName
+        _uiState.update { it.copy(player = _uiState.value.player.copy(nickname = newName)) }
     }
 
     fun onYesPlay() {
         viewModelScope.launch {
-            _isLoading.value = true
+            _uiState.update { it.copy(isLoading = true) }
             if (playerAddress != null && gameId != null)
                 viewModelScope.launch {
                     val game = client.getGame(playerAddress!!.toUri(), gameId!!)
-                    if (game !==null) {
+                    if (game !== null) {
                         repository.updateGame(game.game)
                         repository.updateRosters(game.roster)
+                        val player = _uiState.value.player
+                        client.joinGame(
+                            playerAddress!!.toUri(), Roster(
+                                gameId!!,
+                                player.id,
+                                player.nickname,
+                                _uiState.value.address,
+                                null,
+                                false,
+                                Clock.System.now()
+                            )
+                        )
                     }
 
                 }
-            else{
+            else {
                 TODO() // error
             }
-            _isLoading.value = false
+            _uiState.update { it.copy(isLoading = false) }
+
 
         }
     }

@@ -28,6 +28,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
@@ -38,7 +40,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.asLiveData
 import dev.develsinthedetails.eatpoopyoucat.app.AppSettings
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.CustomRoundedPolygon
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.PixelArtImage
@@ -65,11 +66,11 @@ fun InProgressGameDetailsScreen(
     viewModel: InProgressGameDetailsViewModel = koinViewModel(),
     onBack: () -> Unit
 ) {
-    val game = viewModel.game.asLiveData()
-    val players = viewModel.players.asLiveData()
+    val game by viewModel.game.collectAsState(null)
+    val players: List<Roster>? by viewModel.players.collectAsState(null)
     InProgressGameDetailsScreen(
-        game = game.value,
-        players = players.value,
+        game = game,
+        players = players,
         playerId = viewModel.playerId,
         onBack = onBack
     )
@@ -194,22 +195,29 @@ fun InProgressGameDetailsScreen(
                     )
                     if (player.isLeader) {
                         val appSettings: AppSettings = koinInject()
-                        SelectableReadOnlyTextWithShare(getShareLink(appSettings.playDeepLink, player.address, game.id))
+                        SelectableReadOnlyTextWithShare(
+                            getShareLink(
+                                appSettings.playDeepLink,
+                                player.address,
+                                game.id
+                            )
+                        )
                     }
-                } else {
-                    ListOfPlayers(players.filter { (it.sequence ?: -1) >= 0 }, playerId)
-                    Text(
-                        "Joined",
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(top = 15.dp),
-                        fontSize = 30.sp
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 10.dp), thickness = 5.dp
-                    )
-                    ListOfPlayers(players.filter { (it.sequence ?: -1) < 0 }, playerId)
                 }
+
+                ListOfPlayers(players.filter { (it.sequence ?: -1) >= 0 }, playerId)
+                Text(
+                    "Joined",
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 15.dp),
+                    fontSize = 30.sp
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 10.dp), thickness = 5.dp
+                )
+                ListOfPlayers(players.filter { (it.sequence ?: -1) < 0 }, playerId)
+
             }
         }
     }
@@ -254,10 +262,19 @@ fun ListOfPlayers(players: List<Roster>, playerId: Uuid) {
                             .size(50.dp)
                             .padding(end = 10.dp, start = 10.dp)
                     )
-                } else {
+                } else if((player.sequence ?: 0) >= 0) {
                     Icon(
                         imageVector = Icons.Filled.Draw,
                         contentDescription = "Draw Turn",
+                        modifier = Modifier
+                            .size(50.dp)
+                            .padding(end = 10.dp, start = 10.dp)
+                    )
+                }
+                else{
+                     Icon(
+                        imageVector = Icons.Filled.AccessTime,
+                        contentDescription = "Waiting",
                         modifier = Modifier
                             .size(50.dp)
                             .padding(end = 10.dp, start = 10.dp)

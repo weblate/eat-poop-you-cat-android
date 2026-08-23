@@ -31,8 +31,8 @@ class AppRepository(
     }
 
     suspend fun updatePlayer(player: Player) = playerDao.update(player)
-    fun getPlayer(id: Uuid): Flow<Player?> = playerDao.get(id)
-
+    fun getPlayerFlow(id: Uuid): Flow<Player?> = playerDao.get(id)
+    suspend fun getPlayer(id: Uuid): Player? = playerDao.getAsync(id)
     // ==========================================
     // Game functions
     // ==========================================
@@ -47,7 +47,7 @@ class AppRepository(
     fun getInProgressGamesWithRosters(): Flow<List<GameWithRosters>> =
         gameDao.getInProgressGamesWithRosters()
 
-    fun getGameWithRosters(id: Uuid): GameWithRosters? = gameDao.getGameWithRosters(id)
+    suspend fun getGameWithRosters(id: Uuid): GameWithRosters? = gameDao.getGameWithRosters(id)
     suspend fun getAllGames() = gameDao.getAllAsync()
     fun getGameWithEntries(id: Uuid) = gameDao.getWithEntries(id)
     suspend fun getGameWithEntriesAsync(id: Uuid) = gameDao.getWithEntriesAsync(id)
@@ -90,7 +90,7 @@ class AppRepository(
     suspend fun deleteByGame(gameId: Uuid) = rosterDao.deleteByGame(gameId)
     suspend fun deletePlayer(playerId: Uuid) = rosterDao.deletePlayer(playerId)
     suspend fun delete(gameId: Uuid, playerId: Uuid) = rosterDao.delete(gameId, playerId)
-    suspend fun updateRoster(roster: Roster) = rosterDao.update(roster)
+    suspend fun upsertRoster(roster: Roster) = rosterDao.upsert(roster)
     suspend fun updateRosters(rosters: List<Roster>) = rosterDao.insert(rosters)
     suspend fun deleteAll() = rosterDao.deleteAll()
     suspend fun updateRosterPing(address: Uri, gameId: Uuid, time: Instant) =

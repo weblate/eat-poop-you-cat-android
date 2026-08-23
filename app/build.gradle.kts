@@ -22,6 +22,7 @@ android {
         resValue("string", "git_hash", getGitHash())
 
         testInstrumentationRunner = "dev.develsinthedetails.eatpoopyoucat.utilities.MainTestRunner"
+        proguardFiles("proguard-rules.pro")
     }
 
     compileOptions {

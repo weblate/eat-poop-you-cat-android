@@ -59,7 +59,7 @@ class GameRouter(private val repository: AppRepository, private val client: Clie
             if (missingPlayers != null) {
                 repository.updateGame(missingPlayers.game)
                 missingPlayers.roster.forEach {
-                    repository.updateRoster(it)
+                    repository.upsertRoster(it)
                 }
             }
             val previousEntry: Entry = entries.maxBy { it.sequence }

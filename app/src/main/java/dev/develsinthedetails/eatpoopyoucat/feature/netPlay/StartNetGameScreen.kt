@@ -35,30 +35,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.develsinthedetails.eatpoopyoucat.R
-import dev.develsinthedetails.eatpoopyoucat.app.AppSettings
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.Scaffolds
 import dev.develsinthedetails.eatpoopyoucat.core.ui.theme.AppTheme
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.GameMode
 import dev.develsinthedetails.eatpoopyoucat.core.utilities.NetworkUtils
 import dev.develsinthedetails.eatpoopyoucat.core.utilities.shareEncode
 import dev.develsinthedetails.eatpoopyoucat.core.utilities.valueOrEmpty
+import dev.develsinthedetails.eatpoopyoucat.data.models.Player
 import dev.develsinthedetails.eatpoopyoucat.feature.netPlay.services.Server
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
-
-data class ShareData(
-    val link: String,
-    val nickname: String?,
-    val onChangeNickname: (String) -> Unit,
-    val timeout: Int,
-    val onChangeTimeout: (String) -> Unit,
-    val turnTimeout: Int,
-    val onChangeTurnTimeOut: (String) -> Unit,
-)
 
 fun getShareLink(deepLink: String, address: String, gameId: Uuid): String {
     return "${deepLink}/?game=${gameId.shareEncode()}&server=${address.shareEncode()}"
@@ -99,23 +88,23 @@ fun SelectableReadOnlyTextWithShare(link: String) {
 @Composable
 fun StartNetGameScreen(
     viewModel: StartNetGameViewModel = koinViewModel(),
-    appSettings: AppSettings = koinInject(),
     onStartGame: (Uuid) -> Unit,
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
-    val player by viewModel.player.collectAsStateWithLifecycle()
-    val nickname = player?.nickname
+    val uiState by viewModel.uiState.collectAsState()
     var lanAddress by remember {
-        mutableStateOf(NetworkUtils.getLocalIpAddress()?.let { "http://$it:3947" }
-            ?: "Server Offline")
+        mutableStateOf(
+            NetworkUtils.getLocalIpAddress()?.let { "http://$it:3947" }
+                .also { viewModel.updateAddress(it) }
+                ?: "Server Offline")
     }
     // todo setup onion
     val serverAction by viewModel.serverAction.collectAsState()
 
     LaunchedEffect(Unit) {
         val isWifiOn = NetworkUtils.isWifiConnected(context)
-        val ipAddress = viewModel.address
+        val ipAddress = uiState.address
         viewModel.onStartServerRequested(isWifiOn, ipAddress)
     }
 
@@ -132,7 +121,7 @@ fun StartNetGameScreen(
     }
 
     LaunchedEffect(serverAction) {
-        when (val action = serverAction) {
+        when (serverAction) {
             is StartNetGameViewModel.ServerAction.StartService -> {
                 val serviceIntent = Intent(context, Server::class.java)
                 context.startService(serviceIntent)
@@ -156,29 +145,30 @@ fun StartNetGameScreen(
 
     // todo fill in onChange*
     ShareGame(
-        ShareData(
-            link = getShareLink(appSettings.playDeepLink, lanAddress, viewModel.gameId),
-            nickname,
-            onChangeNickname = { viewModel.validateNickname(it) },
-            5, {}, 5, {}
-        ),
-        !nickname.isNullOrBlank() && lanAddress != "Server Offline",
+        uiState,
+        onNickNameChange = { viewModel.updateNickname(it) },
+        { viewModel.updateTurnTimeOut(it) },
+        { viewModel.updateTimeOut(it) },
         onBack,
         onStartGame = {
             viewModel.createRoster()
-            onStartGame(viewModel.gameId)
+            onStartGame(uiState.gameId)
         })
 }
 
 @Composable
 fun ShareGame(
-    shareData: ShareData,
-    canStart: Boolean,
+    uiState: NewNetGameUiState,
+    onNickNameChange: (String) -> Unit,
+    onChangeTurnTimeOut: (String) -> Unit,
+    onChangeTimeout: (String) -> Unit,
     onBack: () -> Unit,
     onStartGame: () -> Unit,
 ) {
+    val canStart = !uiState.player.nickname.isBlank() && uiState.address != "Server Offline"
+
     Scaffolds.Backable(
-        "Let's go ${shareData.nickname.valueOrEmpty()}!",
+        "Let's go ${uiState.player.nickname.ifBlank { "Pick a name!!" }}!",
         onBack,
         floatingActionButton = {
             Button(onClick = onStartGame, enabled = canStart) {
@@ -194,13 +184,13 @@ fun ShareGame(
         ) {
             Column {
                 OutlinedTextField(
-                    value = shareData.nickname.valueOrEmpty(),
-                    onValueChange = shareData.onChangeNickname,
+                    value = uiState.player.nickname.valueOrEmpty(),
+                    onValueChange = onNickNameChange,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(
-                        onDone = { shareData.onChangeNickname }),
+                        onDone = null),
                     modifier = Modifier
                         .fillMaxWidth(),
                     enabled = true,
@@ -213,14 +203,14 @@ fun ShareGame(
                     },
                 )
                 OutlinedTextField(
-                    value = shareData.timeout.toString(),
-                    onValueChange = shareData.onChangeTimeout,
+                    value = uiState.timeout.toString(),
+                    onValueChange = onChangeTimeout,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Number
                     ),
                     keyboardActions = KeyboardActions(
-                        onNext = { shareData.onChangeTimeout }),
+                        onNext = null),
                     modifier = Modifier
                         .fillMaxWidth(),
                     enabled = true,
@@ -233,14 +223,14 @@ fun ShareGame(
                     },
                 )
                 OutlinedTextField(
-                    value = shareData.turnTimeout.toString(),
-                    onValueChange = shareData.onChangeTurnTimeOut,
+                    value = uiState.turnTimeout.toString(),
+                    onValueChange = onChangeTurnTimeOut,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Number
                     ),
                     keyboardActions = KeyboardActions(
-                        onNext = { shareData.onChangeTurnTimeOut }),
+                        onNext = null),
                     modifier = Modifier
                         .fillMaxWidth(),
                     enabled = true,
@@ -253,7 +243,15 @@ fun ShareGame(
                     },
                 )
                 HorizontalDivider(modifier = Modifier.padding(20.dp))
-                SelectableReadOnlyTextWithShare(shareData.link)
+                SelectableReadOnlyTextWithShare(
+                    getShareLink(
+                        stringResource(R.string.deeplink_scheme)+"://"+
+                        stringResource(R.string.deeplink_host)+
+                                stringResource(R.string.deeplink_play),
+                        uiState.address,
+                        uiState.gameId
+                    )
+                )
                 HorizontalDivider(modifier = Modifier.padding(20.dp))
                 Text("wall of words explaining stuff")
             }
@@ -265,14 +263,14 @@ fun ShareGame(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun ShareGamePreview() {
-    val sd = ShareData(
+    val sd = NewNetGameUiState(
+        Uuid.NIL, GameMode.LAN, Player(Uuid.NIL, nickname = "Muthafucka"),
         getShareLink(
-        "https://jamesosborn-se.github.io/play", address = "http://192.168.1.10:3947",
-        gameId = Uuid.parse("4d8041a7-2001-4960-bb42-f9e66bb1c58b")
-    ),
-        nickname = "Muthafucka",
-        {}, 5, {}, 10, {})
+            stringResource(R.string.deeplink_host), address = "http://192.168.1.10:3947",
+            gameId = Uuid.parse("4d8041a7-2001-4960-bb42-f9e66bb1c58b")
+        ),
+    )
     AppTheme {
-        ShareGame(sd, true, {}, {})
+        ShareGame(sd,  {}, {}, {}, {}, {})
     }
 }

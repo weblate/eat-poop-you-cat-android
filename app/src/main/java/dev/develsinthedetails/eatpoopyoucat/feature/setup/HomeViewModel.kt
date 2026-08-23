@@ -10,7 +10,6 @@ import dev.develsinthedetails.eatpoopyoucat.data.AppRepository
 import dev.develsinthedetails.eatpoopyoucat.data.models.Entry
 import dev.develsinthedetails.eatpoopyoucat.data.models.Game
 import dev.develsinthedetails.eatpoopyoucat.data.models.Player
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 
@@ -20,25 +19,23 @@ class HomeViewModel(
 ) : ViewModel() {
     var isLoading by mutableStateOf(false)
     var useNicknames = appSettings.useNicknamesFlow
-    private var userName by mutableStateOf("")
+    private var nickname by mutableStateOf("")
     private val playerId = appSettings.playerId
 
 
     init {
         viewModelScope.launch {
-            updatePlayer(userName)
+            updatePlayer(nickname)
         }
     }
 
     private fun updatePlayer(nickname: String) {
         val newPlayer = Player(playerId, nickname)
         viewModelScope.launch {
-            val player = repository.getPlayer(playerId).first()
+            val player = repository.getPlayer(playerId)
 
             if (player == null) {
                 repository.createPlayer(newPlayer)
-            } else {
-                repository.updatePlayer(newPlayer)
             }
         }
     }

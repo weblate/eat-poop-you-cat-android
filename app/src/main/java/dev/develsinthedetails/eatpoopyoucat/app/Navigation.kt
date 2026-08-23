@@ -118,7 +118,7 @@ fun NavGraph(appSettings: AppSettings = koinInject()) {
                     navController.navigate(Credits)
                 },
                 toInProgressGames = {
-                    navController.navigate(InProgressGameDetails)
+                    navController.navigate(InProgressGames)
                 },
                 toPrivacyPolicy = {
                     navController.navigate(PrivacyPolicy)

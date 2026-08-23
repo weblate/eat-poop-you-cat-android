@@ -46,7 +46,7 @@ interface RosterDao {
     suspend fun delete(gameId: Uuid, playerId: Uuid)
 
     @Upsert
-    suspend fun update(roster: Roster)
+    suspend fun upsert(roster: Roster)
 
     @Query("""
         UPDATE Roster 

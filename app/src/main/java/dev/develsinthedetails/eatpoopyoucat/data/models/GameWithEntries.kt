@@ -24,6 +24,7 @@ data class GameWithRosters(
     @Relation(parentColumn = "id", entityColumn = "gameId")
     var roster: List<Roster> = emptyList()
 )
+
 fun GameWithRosters.hash(){
     val sorted = this.roster.map { it.playerId }.sortedBy { it.toString() }
     AppRepository.generateRosterHash(sorted)
