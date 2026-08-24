@@ -11,11 +11,12 @@ import dev.develsinthedetails.eatpoopyoucat.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlin.properties.Delegates
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
@@ -44,7 +45,7 @@ class AppSettings(private val context: Context) {
     var isReady: Boolean = false
         private set
 
-    var playerId: Uuid by Delegates.notNull()
+    var playerId: Uuid = Uuid.NIL
         private set
 
     private val appScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -61,6 +62,7 @@ class AppSettings(private val context: Context) {
                 context.dataStore.edit { it[PLAYER_ID] = newId }
                 playerId = Uuid.parse(newId)
             }
+            waitForReady()
             isReady = true
         }
     }
@@ -73,5 +75,11 @@ class AppSettings(private val context: Context) {
         context.dataStore.edit { prefs ->
             prefs[USE_NICKNAMES] = useNicknames.toString()
         }
+    }
+    tailrec suspend fun waitForReady() : Boolean {
+        if(playerId == Uuid.NIL) return false
+        if(playerId != Uuid.NIL) return true
+        delay(100.milliseconds)
+        return waitForReady()
     }
 }

@@ -2,11 +2,14 @@ package dev.develsinthedetails.eatpoopyoucat.feature.importGames
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import dev.develsinthedetails.eatpoopyoucat.app.AppSettings
 import dev.develsinthedetails.eatpoopyoucat.data.AppRepository
 import dev.develsinthedetails.eatpoopyoucat.data.models.Entry
 import dev.develsinthedetails.eatpoopyoucat.data.models.GameWithEntries
+import dev.develsinthedetails.eatpoopyoucat.data.models.Player
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 class ImportGamesViewModel(
     val repository: AppRepository,
@@ -19,7 +22,13 @@ class ImportGamesViewModel(
     val numberOfGamesAdded = _numberOfGamesAdded.asLiveData()
     private var _numberOfEntriesAdded: MutableStateFlow<Int> = MutableStateFlow(0)
     val numberOfEntriesAdded = _numberOfEntriesAdded.asLiveData()
-
+    init {
+        viewModelScope.launch {
+            val player = repository.getPlayer(appSettings.playerId)
+            if (player == null)
+                repository.createPlayer(Player(appSettings.playerId, ""))
+        }
+    }
     private suspend fun addGame(gameWithEntries: GameWithEntries) {
         repository.createGame(gameWithEntries.game)
         addEntries(gameWithEntries.entries)
@@ -28,8 +37,10 @@ class ImportGamesViewModel(
 
     private suspend fun addEntries(entries: List<Entry>) {
         entries.forEach {
-            val newEntry = it.copy(playerId = appSettings.playerId)
-            repository.createEntry(newEntry)
+            val player = repository.getPlayer(it.playerId)
+            if (player == null)
+                repository.createPlayer(Player(it.playerId, it.localPlayerName?:""))
+            repository.createEntry(it)
             _numberOfEntriesAdded.emit(++_numberOfEntriesAdded.value)
         }
     }
