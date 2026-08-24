@@ -6,11 +6,11 @@ import dev.develsinthedetails.eatpoopyoucat.data.local.AppDatabase
 import dev.develsinthedetails.eatpoopyoucat.data.local.dao.EntryDao
 import dev.develsinthedetails.eatpoopyoucat.data.local.dao.GameDao
 import dev.develsinthedetails.eatpoopyoucat.data.local.dao.PlayerDao
-import dev.develsinthedetails.eatpoopyoucat.utilities.testEntriesGame1
-import dev.develsinthedetails.eatpoopyoucat.utilities.testGame
-import dev.develsinthedetails.eatpoopyoucat.utilities.testGames
-import dev.develsinthedetails.eatpoopyoucat.utilities.testPlayerOne
-import dev.develsinthedetails.eatpoopyoucat.utilities.testPlayerTwo
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.testEntriesGame1
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.testGame
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.testGames
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.testPlayerOne
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.testPlayerTwo
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo

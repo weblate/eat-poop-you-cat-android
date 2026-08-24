@@ -1,11 +1,14 @@
-@file:Suppress("RunBlocking")
-
-package dev.develsinthedetails.eatpoopyoucat.viewmodels
+package dev.develsinthedetails.eatpoopyoucat.feature.importGames
 
 import android.app.Activity
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import dev.develsinthedetails.eatpoopyoucat.app.AppSettings
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.testEntriesGame1
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.testEntriesGame2
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.testGames
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.testPlayerOne
+import dev.develsinthedetails.eatpoopyoucat.core.utilities.testPlayerTwo
 import dev.develsinthedetails.eatpoopyoucat.data.AppRepository
 import dev.develsinthedetails.eatpoopyoucat.data.local.AppDatabase
 import dev.develsinthedetails.eatpoopyoucat.data.local.dao.EntryDao
@@ -14,12 +17,6 @@ import dev.develsinthedetails.eatpoopyoucat.data.local.dao.PlayerDao
 import dev.develsinthedetails.eatpoopyoucat.data.local.dao.RosterDao
 import dev.develsinthedetails.eatpoopyoucat.data.models.Entry
 import dev.develsinthedetails.eatpoopyoucat.data.models.GameWithEntries
-import dev.develsinthedetails.eatpoopyoucat.feature.importGames.ImportGamesViewModel
-import dev.develsinthedetails.eatpoopyoucat.utilities.testEntriesGame1
-import dev.develsinthedetails.eatpoopyoucat.utilities.testEntriesGame2
-import dev.develsinthedetails.eatpoopyoucat.utilities.testGames
-import dev.develsinthedetails.eatpoopyoucat.utilities.testPlayerOne
-import dev.develsinthedetails.eatpoopyoucat.utilities.testPlayerTwo
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -47,12 +44,15 @@ class ImportPreviousGamesTest {
     @Before
     fun createDb() = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val mSharedPref= context.getSharedPreferences(context.packageName, Activity.MODE_PRIVATE)
+        val mSharedPref = context.getSharedPreferences(context.packageName, Activity.MODE_PRIVATE)
         mSharedPref!!.edit().putString("PLAYER_ID", testPlayerOne.id.toString())
         appSettings = AppSettings(context)
         appSettings.waitForReady()
 
-        database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
+        database = Room.inMemoryDatabaseBuilder(
+            context,
+            dev.develsinthedetails.eatpoopyoucat.data.local.AppDatabase::class.java
+        ).build()
         gameDao = database.gameDao()
         entryDao = database.entryDao()
         playerDao = database.playerDao()
@@ -61,7 +61,7 @@ class ImportPreviousGamesTest {
 
         playerDao.insert(testPlayerOne)
         playerDao.insert(testPlayerTwo)
-        playerDao.insert(testPlayerTwo.copy(id=testPlayerOne.id, nickname = "drop tables;"))
+        playerDao.insert(testPlayerTwo.copy(id = testPlayerOne.id, nickname = "drop tables;"))
         gameDao.insertAll(listOf(gameA, gameC))
         // Entries are last because of foreign key constraints
         entryDao.insertAll(testEntriesGame1)
@@ -105,11 +105,12 @@ class ImportPreviousGamesTest {
         val exportedGamesPlusOne = exportedGames.toMutableList()
         val last = exportedGamesPlusOne.last()
         exportedGamesPlusOne.removeAt(exportedGamesPlusOne.size - 1)
-        var seq = if (last.entries.none()) 0 else last.entries.last().sequence+1
-        exportedGamesPlusOne.add(last.copy(
+        var seq = if (last.entries.none()) 0 else last.entries.last().sequence + 1
+        exportedGamesPlusOne.add(
+            last.copy(
             entries = testEntriesGame2.map {
                 Entry(
-                    id= Uuid.random(),
+                    id = Uuid.random(),
                     it.playerId,
                     it.localPlayerName,
                     seq++,
