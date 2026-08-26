@@ -1,12 +1,12 @@
 package dev.develsinthedetails.eatpoopyoucat.data.local.dao
 
 import android.net.Uri
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Upsert
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Transaction
+import androidx.room3.Upsert
 import dev.develsinthedetails.eatpoopyoucat.data.models.Roster
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Instant
@@ -18,7 +18,7 @@ interface RosterDao {
     fun getAll(): Flow<List<Roster>>
 
     @Query("SELECT * FROM roster WHERE gameId=:id")
-    fun getAllByGame(id: Uuid): List<Roster>
+    suspend fun getAllByGame(id: Uuid): List<Roster>
 
 
     @Query("SELECT * FROM roster WHERE gameId=:id")
@@ -28,13 +28,13 @@ interface RosterDao {
     fun getLeaderByGame(id: Uuid): Flow<Roster>
 
     @Query("SELECT playerId FROM roster WHERE gameId=:gameId ORDER BY playerId ASC")
-    fun getOrderedPlayerIds(gameId: Uuid): List<Uuid>
+    suspend fun getOrderedPlayerIds(gameId: Uuid): List<Uuid>
 
     @Query("SELECT * FROM roster WHERE playerId=:id")
     fun getAllByPlayer(id: Uuid): Flow<List<Roster>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(roster: Roster)
+    suspend fun insert(roster: Roster)
 
     @Query("DELETE FROM roster WHERE gameId=:gameId")
     suspend fun deleteByGame(gameId: Uuid)

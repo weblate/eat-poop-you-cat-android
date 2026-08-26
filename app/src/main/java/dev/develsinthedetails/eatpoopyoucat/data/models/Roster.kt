@@ -1,9 +1,9 @@
 package dev.develsinthedetails.eatpoopyoucat.data.models
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.ForeignKey.Companion.CASCADE
-import androidx.room.Index
+import androidx.room3.Entity
+import androidx.room3.ForeignKey
+import androidx.room3.ForeignKey.Companion.CASCADE
+import androidx.room3.Index
 import dev.develsinthedetails.eatpoopyoucat.data.local.UuidSerializer
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant

@@ -51,7 +51,7 @@ class ImportGamesViewModel(
             if (!existingGameIds.any { g -> g == it.game.id })
                 addGame(it)
             else {
-                val existingEntries = repository.getEntriesAsync(it.game.id)
+                val existingEntries = repository.getEntries(it.game.id)
                 val missingEntries =
                     it.entries.filter { e -> !existingEntries.any { ee -> ee.id == e.id } }
                 if (missingEntries.any())

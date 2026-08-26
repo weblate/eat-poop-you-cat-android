@@ -1,11 +1,11 @@
 package dev.develsinthedetails.eatpoopyoucat.data.local
 
 import android.content.Context
-import androidx.room.AutoMigration
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room3.AutoMigration
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.Database
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
 import dev.develsinthedetails.eatpoopyoucat.core.utilities.DATABASE_NAME
 import dev.develsinthedetails.eatpoopyoucat.data.local.dao.EntryDao
 import dev.develsinthedetails.eatpoopyoucat.data.local.dao.GameDao
@@ -27,7 +27,7 @@ import dev.develsinthedetails.eatpoopyoucat.data.models.Roster
     ]
 )
 
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
     abstract fun gameDao(): GameDao

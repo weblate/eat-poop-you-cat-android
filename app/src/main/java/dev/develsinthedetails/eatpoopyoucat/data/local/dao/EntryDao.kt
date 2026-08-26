@@ -1,11 +1,11 @@
 package dev.develsinthedetails.eatpoopyoucat.data.local.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Upsert
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Transaction
+import androidx.room3.Upsert
 import dev.develsinthedetails.eatpoopyoucat.data.models.Entry
 import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.Uuid
@@ -15,31 +15,31 @@ interface EntryDao {
 
     @Transaction
     @Query("SELECT * FROM entry WHERE id=:id LIMIT 1")
-    fun get(id: Uuid): Flow<Entry?>
+    fun getFlow(id: Uuid): Flow<Entry?>
 
     @Transaction
     @Query("SELECT * FROM entry")
-    suspend fun getAllAsync(): List<Entry>
+    suspend fun getAll(): List<Entry>
 
     @Transaction
     @Query("SELECT * FROM entry WHERE id=:id LIMIT 1")
-    suspend fun getAsync(id: Uuid): Entry?
+    suspend fun get(id: Uuid): Entry?
 
     @Transaction
     @Query("SELECT * FROM entry WHERE gameId=:id")
-    fun getAllEntriesByGame(id: Uuid): Flow<List<Entry>>
+    fun getAllEntriesByGameFlow(id: Uuid): Flow<List<Entry>>
 
     @Transaction
     @Query("SELECT * FROM entry WHERE gameId=:gameId")
-    suspend fun getAllEntriesByGameAsync(gameId: Uuid): List<Entry>
+    suspend fun getAllEntriesByGame(gameId: Uuid): List<Entry>
 
     @Transaction
     @Query("SELECT * FROM entry WHERE gameId=:gameId AND sequence not in (:knownTurns)")
-    suspend fun getMissingEntriesAsync(gameId: Uuid, knownTurns: List<Int>): List<Entry>
+    suspend fun getMissingEntries(gameId: Uuid, knownTurns: List<Int>): List<Entry>
 
     @Transaction
     @Query("SELECT * FROM entry WHERE id=:id")
-    suspend fun getEntryAndPlayersAsync(id: Uuid): Entry
+    suspend fun getEntryAndPlayers(id: Uuid): Entry
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.IGNORE)

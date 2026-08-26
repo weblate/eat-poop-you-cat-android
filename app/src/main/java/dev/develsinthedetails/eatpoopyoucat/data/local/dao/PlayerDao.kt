@@ -1,10 +1,10 @@
 package dev.develsinthedetails.eatpoopyoucat.data.local.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Update
 import dev.develsinthedetails.eatpoopyoucat.data.models.Player
 import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.Uuid
@@ -16,10 +16,10 @@ interface PlayerDao {
     fun getAll(): Flow<List<Player>>
 
     @Query("SELECT * FROM player WHERE id=:id")
-    fun get(id: Uuid): Flow<Player?>
+    fun getFlow(id: Uuid): Flow<Player?>
 
     @Query("SELECT * FROM player WHERE id=:id")
-    suspend fun getAsync(id: Uuid): Player?
+    suspend fun get(id: Uuid): Player?
 
     @Query("DELETE FROM player WHERE id=:id")
     suspend fun delete(id: Uuid)

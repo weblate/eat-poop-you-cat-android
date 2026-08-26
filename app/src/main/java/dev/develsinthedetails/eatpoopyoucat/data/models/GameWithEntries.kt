@@ -1,7 +1,7 @@
 package dev.develsinthedetails.eatpoopyoucat.data.models
 
-import androidx.room.Embedded
-import androidx.room.Relation
+import androidx.room3.Embedded
+import androidx.room3.Relation
 import dev.develsinthedetails.eatpoopyoucat.data.AppRepository
 import kotlinx.serialization.Serializable
 
@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 data class GameWithEntries(
     @Embedded
     var game: Game,
-    @Relation(parentColumn = "id", entityColumn = "gameId")
+    @Relation(parentColumns = ["id"], entityColumns = ["gameId"])
     var entries: List<Entry> = emptyList()
 )
 
@@ -21,7 +21,7 @@ fun GameWithEntries.entriesAreValid(): Boolean {
 data class GameWithRosters(
     @Embedded
     var game: Game,
-    @Relation(parentColumn = "id", entityColumn = "gameId")
+    @Relation(parentColumns = ["id"], entityColumns = ["gameId"])
     var roster: List<Roster> = emptyList()
 )
 

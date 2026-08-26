@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import dev.develsinthedetails.eatpoopyoucat.R
 import io.ktor.serialization.kotlinx.cbor.cbor
 import io.ktor.server.application.install
 import io.ktor.server.engine.EmbeddedServer
@@ -40,6 +41,7 @@ class Server : Service() {
             .Builder(this, "webserver")
             .setContentTitle("Net Play Game")
             .setContentText("Starting...")
+            .setSmallIcon(R.drawable.ic_notification)
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

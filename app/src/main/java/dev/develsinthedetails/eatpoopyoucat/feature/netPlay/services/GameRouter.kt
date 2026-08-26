@@ -40,7 +40,7 @@ class GameRouter(private val repository: AppRepository, private val client: Clie
             call.respond(HttpStatusCode.OK, "Successfully joined")
         }
         post<AskTakeTurn> { askTakeTurn ->
-            val game = repository.getGameWithEntriesAsync(askTakeTurn.gameId)
+            val game = repository.getGameWithEntries(askTakeTurn.gameId)
             val gameRosters = repository.getGameWithRosters(askTakeTurn.gameId) ?: return@post
 
             val leaderAddress = gameRosters.roster.first { it.isLeader }.address
@@ -89,7 +89,7 @@ class GameRouter(private val repository: AppRepository, private val client: Clie
         }
         get<UpdateGame> { updateGame ->
             val knownTurns = call.receive<List<Int>>()
-            call.respond(repository.getMissingEntriesAsync(updateGame.gameId, knownTurns))
+            call.respond(repository.getMissingEntries(updateGame.gameId, knownTurns))
         }
     }
 }

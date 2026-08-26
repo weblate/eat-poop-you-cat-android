@@ -2,7 +2,7 @@ package dev.develsinthedetails.eatpoopyoucat.data.local
 
 import android.net.Uri
 import androidx.core.net.toUri
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import java.nio.ByteBuffer
 import java.util.UUID
 import kotlin.time.Instant
@@ -13,18 +13,18 @@ import kotlin.uuid.toKotlinUuid
 class Converters {
 
     // --- Instant Converters ---
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromTimestamp(value: Long?): Instant? {
         return value?.let { Instant.fromEpochMilliseconds(it) }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun instantToTimestamp(instant: Instant?): Long? {
         return instant?.toEpochMilliseconds()
     }
 
     // --- Uuid Converters ---
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromUuidByteArray(bytes: ByteArray?): Uuid? {
         if (bytes == null) return null
         val buffer = ByteBuffer.wrap(bytes)
@@ -35,7 +35,7 @@ class Converters {
         return UUID(msb, lsb).toKotlinUuid()
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun uuidToByteArray(uuid: Uuid?): ByteArray? {
         if (uuid == null) return null
         val buffer = ByteBuffer.allocate(16) // UUIDs are exactly 16 bytes
@@ -49,12 +49,12 @@ class Converters {
     }
 
     // --- Uri Converters ---
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromUri(uri: Uri?): String? {
         return uri?.toString()
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toUri(uriString: String?): Uri? {
         return uriString?.toUri()
     }

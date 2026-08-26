@@ -18,5 +18,5 @@ class PreviousGameDetailsViewModel(
     private val typeMap = mapOf(typeOf<Uuid>() to UuidNavType)
     private val route = state.toRoute<PreviousGameDetails>(typeMap)
     private val gameId: Uuid = checkNotNull(route.gameId)
-    val gameWithEntries = repository.getGameWithEntries(gameId).asLiveData()
+    val gameWithEntries = repository.getGameWithEntriesFlow(gameId).asLiveData()
 }

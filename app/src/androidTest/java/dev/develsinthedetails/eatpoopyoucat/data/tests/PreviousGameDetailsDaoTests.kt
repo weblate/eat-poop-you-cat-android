@@ -55,7 +55,7 @@ class PreviousGameDetailsDaoTests {
 
     @Test
     fun testGetAllGames() = runBlocking {
-        val gameList = gameDao.getAll().first()
+        val gameList = gameDao.getAllFlow().first()
         assertThat(gameList.size, equalTo(3))
 
         assertThat(gameList[0], equalTo(gameA))
@@ -65,8 +65,8 @@ class PreviousGameDetailsDaoTests {
 
     @Test
     fun testGetAllGamesWithEntries() = runBlocking {
-        val gameWithEntries = gameDao.getAllWithEntries().first()
-        val player= playerDao.get(gameWithEntries[0].entries[0].playerId).first()
+        val gameWithEntries = gameDao.getAllWithEntriesFlow().first()
+        val player= playerDao.getFlow(gameWithEntries[0].entries[0].playerId).first()
         assertThat(testGame, equalTo(gameWithEntries[0].game))
         assert(player?.nickname == testPlayerOne.nickname)
     }
@@ -74,7 +74,7 @@ class PreviousGameDetailsDaoTests {
     @Test
     fun testDeleteGame() = runBlocking {
         gameDao.delete(gameA.id)
-        val gameList = gameDao.getAll().first()
+        val gameList = gameDao.getAllFlow().first()
         assertThat(gameList.size, equalTo(2))
 
         assertThat(gameList[0], equalTo(gameB))
@@ -83,7 +83,7 @@ class PreviousGameDetailsDaoTests {
 
     @Test
     fun testGetWithEntriesGame() = runBlocking {
-        val gameList = gameDao.getWithEntries(gameA.id).first()
+        val gameList = gameDao.getWithEntriesFlow(gameA.id).first()
         assertThat(gameList.game, equalTo(gameA))
         assertThat(gameList.entries.count(), equalTo(3))
         assertThat(gameList.entries, equalTo(testEntriesGame1))
@@ -94,7 +94,7 @@ class PreviousGameDetailsDaoTests {
     fun testGetInsertGame() = runBlocking {
         gameDao.delete(gameA.id)
         gameDao.insert(gameA)
-        val gameList = gameDao.getAll().first()
+        val gameList = gameDao.getAllFlow().first()
 
         assertThat(gameList.size, equalTo(3))
 

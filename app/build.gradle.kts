@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.androidx.room)
+    alias(libs.plugins.androidx.room3)
     alias(libs.plugins.screenshot)
 }
 
@@ -16,8 +16,8 @@ android {
         applicationId = "dev.develsinthedetails.eatpoopyoucat"
         minSdk = 26
         targetSdk = 37
-        versionCode = 24
-        versionName = "1.4.7"
+        versionCode = 25
+        versionName = "1.9.9"
 
         resValue("string", "git_hash", getGitHash())
 
@@ -60,7 +60,7 @@ androidComponents {
     }
 }
 
-room {
+room3 {
     schemaDirectory("$projectDir/schemas")
 }
 
@@ -77,8 +77,8 @@ dependencies {
     implementation(libs.ui)
     implementation(libs.material3)
 
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
+    implementation(libs.androidx.room3.runtime)
+    ksp(libs.androidx.room3.compiler)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)

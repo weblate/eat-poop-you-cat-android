@@ -31,8 +31,8 @@ class AppRepository(
     }
 
     suspend fun updatePlayer(player: Player) = playerDao.update(player)
-    fun getPlayerFlow(id: Uuid): Flow<Player?> = playerDao.get(id)
-    suspend fun getPlayer(id: Uuid): Player? = playerDao.getAsync(id)
+    fun getPlayerFlow(id: Uuid): Flow<Player?> = playerDao.getFlow(id)
+    suspend fun getPlayer(id: Uuid): Player? = playerDao.get(id)
     // ==========================================
     // Game functions
     // ==========================================
@@ -43,20 +43,20 @@ class AppRepository(
     fun getGameFlow(id: Uuid) = gameDao.getFlow(id)
     suspend fun getGame(id: Uuid) = gameDao.get(id)
     suspend fun deleteGame(id: Uuid) = gameDao.delete(id)
-    fun getAllGamesWithEntries() = gameDao.getAllWithEntries()
+    fun getAllGamesWithEntries() = gameDao.getAllWithEntriesFlow()
     fun getInProgressGamesWithRosters(): Flow<List<GameWithRosters>> =
         gameDao.getInProgressGamesWithRosters()
 
     suspend fun getGameWithRosters(id: Uuid): GameWithRosters? = gameDao.getGameWithRosters(id)
-    suspend fun getAllGames() = gameDao.getAllAsync()
-    fun getGameWithEntries(id: Uuid) = gameDao.getWithEntries(id)
-    suspend fun getGameWithEntriesAsync(id: Uuid) = gameDao.getWithEntriesAsync(id)
+    suspend fun getAllGames() = gameDao.getAll()
+    fun getGameWithEntriesFlow(id: Uuid) = gameDao.getWithEntriesFlow(id)
+    suspend fun getGameWithEntries(id: Uuid) = gameDao.getWithEntries(id)
 
     suspend fun updateGame(game: Game) = gameDao.updateGame(game)
     suspend fun getGameIdFromEntry(entryId: Uuid): Uuid = entryDao.getGameId(entryId)
 
     suspend fun getPreviouslyUsedNicknames(gameId: Uuid): List<String> {
-        val nicknames = getGameWithEntriesAsync(gameId)
+        val nicknames = getGameWithEntries(gameId)
             .entries
             .mapNotNull { it.localPlayerName?.takeIf { name -> name.isNotBlank() } }
         return nicknames
@@ -68,25 +68,24 @@ class AppRepository(
     suspend fun createEntry(entry: Entry) =
         entryDao.insert(entry.copy(createdAt = Clock.System.now()))
 
-    fun getEntry(id: Uuid) = entryDao.get(id)
-    suspend fun getEntryAsync(id: Uuid) = entryDao.getAsync(id)
+    suspend fun getEntry(id: Uuid) = entryDao.get(id)
     suspend fun upsertEntry(entry: Entry) = entryDao.upsert(entry)
-    suspend fun getEntriesAsync(gameId: Uuid) =
-        entryDao.getAllEntriesByGameAsync(gameId)
+    suspend fun getEntries(gameId: Uuid) =
+        entryDao.getAllEntriesByGame(gameId)
 
-    suspend fun getMissingEntriesAsync(gameId: Uuid, knownTurns: List<Int>) =
-        entryDao.getMissingEntriesAsync(gameId, knownTurns)
+    suspend fun getMissingEntries(gameId: Uuid, knownTurns: List<Int>) =
+        entryDao.getMissingEntries(gameId, knownTurns)
     suspend fun getLastEntry(gameId: Uuid) = entryDao.getLast(gameId)
 
     // ==========================================
     // Roster functions
     // ==========================================
     fun getAllRosters(): Flow<List<Roster>> = rosterDao.getAll()
-    fun getRostersByGame(id: Uuid): List<Roster> = rosterDao.getAllByGame(id)
+    suspend fun getRostersByGame(id: Uuid): List<Roster> = rosterDao.getAllByGame(id)
     fun getRostersByGameFlow(id: Uuid): Flow<List<Roster>> = rosterDao.getAllByGameFlow(id)
     fun getLeaderByGame(id: Uuid): Flow<Roster> = rosterDao.getLeaderByGame(id)
     fun getRostersByPlayer(id: Uuid): Flow<List<Roster>> = rosterDao.getAllByPlayer(id)
-    fun addPlayer(roster: Roster) = rosterDao.insert(roster)
+    suspend fun addPlayer(roster: Roster) = rosterDao.insert(roster)
     suspend fun deleteByGame(gameId: Uuid) = rosterDao.deleteByGame(gameId)
     suspend fun deletePlayer(playerId: Uuid) = rosterDao.deletePlayer(playerId)
     suspend fun delete(gameId: Uuid, playerId: Uuid) = rosterDao.delete(gameId, playerId)
@@ -96,7 +95,7 @@ class AppRepository(
     suspend fun updateRosterPing(address: Uri, gameId: Uuid, time: Instant) =
         rosterDao.updateRosterPing(address, gameId, time)
 
-    fun getRosterHashAndCount(gameId: Uuid): RosterHashAndCount {
+    suspend fun getRosterHashAndCount(gameId: Uuid): RosterHashAndCount {
         val playerIds = rosterDao.getOrderedPlayerIds(gameId)
         return RosterHashAndCount(generateRosterHash(playerIds), playerIds.size)
     }

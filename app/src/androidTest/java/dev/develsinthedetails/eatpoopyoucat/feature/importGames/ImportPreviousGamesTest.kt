@@ -65,7 +65,7 @@ class ImportPreviousGamesTest {
         gameDao.insertAll(listOf(gameA, gameC))
         // Entries are last because of foreign key constraints
         entryDao.insertAll(testEntriesGame1)
-        exportedGames = gameDao.getAllWithEntriesAsync()
+        exportedGames = gameDao.getAllWithEntries()
     }
 
     @After
@@ -78,8 +78,8 @@ class ImportPreviousGamesTest {
 
     @Test
     fun addGamesWithARemovedPlayer() = runBlocking {
-        val games = gameDao.getAllAsync()
-        val entries = entryDao.getAllAsync()
+        val games = gameDao.getAll()
+        val entries = entryDao.getAll()
         val numberOfGame = games.count()
         val numberOfEntries = entries.count()
 
@@ -90,8 +90,8 @@ class ImportPreviousGamesTest {
         val uut = ImportGamesViewModel(repository, appSettings)
         uut.addGames(exportedGames) {}
 
-        val gamesAfterDeleteAndImport = gameDao.getAllAsync()
-        val entriesAfterDeleteAndImport = entryDao.getAllAsync()
+        val gamesAfterDeleteAndImport = gameDao.getAll()
+        val entriesAfterDeleteAndImport = entryDao.getAll()
 
         val numberOfGameAfterDeleteAndImport = gamesAfterDeleteAndImport.count()
         val numberOfEntriesAfterDeleteAndImport = entriesAfterDeleteAndImport.count()
@@ -119,8 +119,8 @@ class ImportPreviousGamesTest {
                 )
             }
         ))
-        val games = gameDao.getAllAsync()
-        val entries = entryDao.getAllAsync()
+        val games = gameDao.getAll()
+        val entries = entryDao.getAll()
         val numberOfGame = games.count()
         val numberOfEntries = entries.count() + testEntriesGame2.count()
         val uut = ImportGamesViewModel(repository, appSettings)
@@ -129,8 +129,8 @@ class ImportPreviousGamesTest {
         }
         j.join()
 
-        val gamesAfterDeleteAndImport = gameDao.getAllAsync()
-        val entriesAfterDeleteAndImport = entryDao.getAllAsync()
+        val gamesAfterDeleteAndImport = gameDao.getAll()
+        val entriesAfterDeleteAndImport = entryDao.getAll()
 
         val numberOfGameAfterDeleteAndImport = gamesAfterDeleteAndImport.count()
         val numberOfEntriesAfterDeleteAndImport = entriesAfterDeleteAndImport.count()
@@ -142,8 +142,8 @@ class ImportPreviousGamesTest {
 
     @Test
     fun addGamesFreshInstall() = runBlocking {
-        val games = gameDao.getAllAsync()
-        val entries = entryDao.getAllAsync()
+        val games = gameDao.getAll()
+        val entries = entryDao.getAll()
         val numberOfGame = games.count()
         val numberOfEntries = entries.count()
         tearDown()
@@ -154,8 +154,8 @@ class ImportPreviousGamesTest {
         }
         job.join()
 
-        val gamesAfterDeleteAndImport = gameDao.getAllAsync()
-        val entriesAfterDeleteAndImport = entryDao.getAllAsync()
+        val gamesAfterDeleteAndImport = gameDao.getAll()
+        val entriesAfterDeleteAndImport = entryDao.getAll()
         val numberOfGameAfterDeleteAndImport = gamesAfterDeleteAndImport.count()
         val numberOfEntriesAfterDeleteAndImport = entriesAfterDeleteAndImport.count()
 

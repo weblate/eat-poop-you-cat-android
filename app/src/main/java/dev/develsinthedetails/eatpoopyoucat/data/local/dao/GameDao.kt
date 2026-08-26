@@ -1,11 +1,11 @@
 package dev.develsinthedetails.eatpoopyoucat.data.local.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Upsert
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Transaction
+import androidx.room3.Upsert
 import dev.develsinthedetails.eatpoopyoucat.data.models.Game
 import dev.develsinthedetails.eatpoopyoucat.data.models.GameWithEntries
 import dev.develsinthedetails.eatpoopyoucat.data.models.GameWithRosters
@@ -17,7 +17,7 @@ interface GameDao {
 
     @Transaction
     @Query("SELECT * FROM game")
-    fun getAll(): Flow<List<Game>>
+    fun getAllFlow(): Flow<List<Game>>
 
     @Transaction
     @Query("SELECT * FROM game where id=:id")
@@ -25,23 +25,23 @@ interface GameDao {
 
     @Transaction
     @Query("SELECT * FROM game")
-    fun getAllWithEntries(): Flow<List<GameWithEntries>>
+    fun getAllWithEntriesFlow(): Flow<List<GameWithEntries>>
 
     @Transaction
     @Query("SELECT * FROM game")
-    suspend fun getAllWithEntriesAsync(): List<GameWithEntries>
+    suspend fun getAllWithEntries(): List<GameWithEntries>
 
     @Transaction
     @Query("SELECT * FROM game")
-    suspend fun getAllAsync(): List<Game>
+    suspend fun getAll(): List<Game>
 
     @Transaction
     @Query("SELECT * FROM game where id=:id")
-    fun getWithEntries(id: Uuid): Flow<GameWithEntries>
+    fun getWithEntriesFlow(id: Uuid): Flow<GameWithEntries>
 
     @Transaction
     @Query("SELECT * FROM game where id=:id")
-    suspend fun getWithEntriesAsync(id: Uuid): GameWithEntries
+    suspend fun getWithEntries(id: Uuid): GameWithEntries
 
     @Transaction
     @Query("SELECT * FROM game WHERE turns IS NULL")
