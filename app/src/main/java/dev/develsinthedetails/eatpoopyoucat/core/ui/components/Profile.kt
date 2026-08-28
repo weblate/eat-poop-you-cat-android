@@ -1,10 +1,10 @@
 package dev.develsinthedetails.eatpoopyoucat.core.ui.components
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -23,8 +24,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,39 +45,53 @@ import kotlin.uuid.Uuid
 fun CustomRoundedPolygon(
     generated: Profile, modifier: Modifier = Modifier
 ) {
-    val path = remember(generated.coordinates) {
-        Path().apply {
-            if (generated.coordinates.isNotEmpty()) {
-                moveTo(generated.coordinates[0].x, generated.coordinates[0].y)
-                for (i in 1 until generated.coordinates.size) {
-                    lineTo(generated.coordinates[i].x, generated.coordinates[i].y)
-                }
-                close()
+    Spacer(
+        modifier = modifier.drawWithCache {
+            var minX = Float.MAX_VALUE
+            var minY = Float.MAX_VALUE
+            var maxX = Float.MIN_VALUE
+            var maxY = Float.MIN_VALUE
+
+            generated.coordinates.forEach {
+                if (it.x < minX) minX = it.x
+                if (it.x > maxX) maxX = it.x
+                if (it.y < minY) minY = it.y
+                if (it.y > maxY) maxY = it.y
             }
-        }
-    }
 
-    val paint = remember(generated.cornerRadius, generated.color) {
-        Paint().apply {
-            this.color = generated.color
-            this.style = PaintingStyle.Fill
-            this.pathEffect = PathEffect.cornerPathEffect(generated.cornerRadius)
-            this.isAntiAlias = true
-        }
-    }
+            val originalWidth = if (maxX > minX) maxX - minX else 1f
+            val originalHeight = if (maxY > minY) maxY - minY else 1f
 
-    Canvas(modifier = modifier) {
-        val bounds = path.getBounds()
-        val scaleX = if (bounds.width > 0) size.width / bounds.width else 1f
-        val scaleY = if (bounds.height > 0) size.height / bounds.height else 1f
-        scale(scaleX = scaleX, scaleY = scaleY, pivot = Offset.Zero) {
-            translate(left = -bounds.left, top = -bounds.top) {
+            val scaleX = size.width / originalWidth
+            val scaleY = size.height / originalHeight
+
+            val path = Path().apply {
+                if (generated.coordinates.isNotEmpty()) {
+                    val first = generated.coordinates.first()
+                    moveTo((first.x - minX) * scaleX, (first.y - minY) * scaleY)
+
+                    for (i in 1 until generated.coordinates.size) {
+                        val pt = generated.coordinates[i]
+                        lineTo((pt.x - minX) * scaleX, (pt.y - minY) * scaleY)
+                    }
+                    close()
+                }
+            }
+
+            val paint = Paint().apply {
+                this.color = generated.color
+                this.style = PaintingStyle.Fill
+                this.pathEffect = PathEffect.cornerPathEffect(generated.cornerRadius)
+                this.isAntiAlias = true
+            }
+
+            onDrawBehind {
                 drawIntoCanvas { canvas ->
                     canvas.drawPath(path, paint)
                 }
             }
         }
-    }
+    )
 }
 
 class PlayerIdPreviewParameterProvider : PreviewParameterProvider<Uuid> {

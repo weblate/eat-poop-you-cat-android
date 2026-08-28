@@ -77,11 +77,11 @@ class StartNetGameViewModel(
     private val _serverAction = MutableStateFlow<ServerAction>(ServerAction.Idle)
     val serverAction: StateFlow<ServerAction> = _serverAction.asStateFlow()
 
-    fun onStartServerRequested(isWifiOn: Boolean, ipAddress: String?) {
-        if (!isWifiOn || ipAddress == null) {
-            _serverAction.value = ServerAction.PromptWifiTurnOn
+    fun onStartServerRequested(isWifiOn: Boolean) {
+        if (isWifiOn||_uiState.value.address!="Server Offline") {
+            _serverAction.value = ServerAction.StartService(_uiState.value.address)
         } else {
-            _serverAction.value = ServerAction.StartService(ipAddress)
+            _serverAction.value = ServerAction.PromptWifiTurnOn
         }
     }
 

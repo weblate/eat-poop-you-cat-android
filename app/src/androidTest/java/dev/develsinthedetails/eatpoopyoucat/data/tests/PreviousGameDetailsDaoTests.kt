@@ -1,6 +1,6 @@
 package dev.develsinthedetails.eatpoopyoucat.data.tests
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.room.Room
+import androidx.room3.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import dev.develsinthedetails.eatpoopyoucat.data.local.AppDatabase
 import dev.develsinthedetails.eatpoopyoucat.data.local.dao.EntryDao

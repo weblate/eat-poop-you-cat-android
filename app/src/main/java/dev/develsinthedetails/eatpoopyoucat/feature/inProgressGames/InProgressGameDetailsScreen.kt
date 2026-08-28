@@ -36,11 +36,14 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.develsinthedetails.eatpoopyoucat.app.AppSettings
+import dev.develsinthedetails.eatpoopyoucat.R
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.CustomRoundedPolygon
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.PixelArtImage
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.Scaffolds
@@ -56,7 +59,6 @@ import dev.develsinthedetails.eatpoopyoucat.data.models.Roster
 import dev.develsinthedetails.eatpoopyoucat.feature.netPlay.SelectableReadOnlyTextWithShare
 import dev.develsinthedetails.eatpoopyoucat.feature.netPlay.getShareLink
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -89,208 +91,232 @@ fun InProgressGameDetailsScreen(
             color = MaterialTheme.colorScheme.background,
         ) {
             val turns = players?.count { (it.sequence ?: -1) >= 0 } ?: 0
-            if (game == null || players == null) Spinner()
-            else Column(
+            if (game == null || players == null) {
+                Spinner()
+                return@Surface
+            }
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
+                    .padding(horizontal = 3.dp)
+                    .fillMaxSize()
             ) {
-                Row {
-                    when (game.gameMode) {
-                        GameMode.LAN -> {
-                            Icon(
-                                imageVector = Icons.Default.Lan,
-                                contentDescription = "Share text",
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .padding(end = 10.dp)
-                            )
-                        }
-
-                        GameMode.INET -> Icon(
-                            imageVector = Icons.Default.Wifi,
-                            contentDescription = "Share text",
-                            modifier = Modifier
-                                .size(50.dp)
-                                .padding(end = 10.dp)
-                        )
-
-                        else -> Icon(
-                            imageVector = Icons.Default.QuestionMark,
-                            contentDescription = "Share text"
-                        )
-                    }
-                    val generatedProfile = generateOrganicProfile(game.id)
-                    Box(
+                item {
+                    Column(
                         modifier = Modifier
-                            .size(50.dp)
-                            .background(generatedProfile.backgroundColor),
-                        contentAlignment = Alignment.Center
+                            .padding(10.dp)
                     ) {
-                        CustomRoundedPolygon(
-                            generated = generatedProfile, modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    when (players.any { it.playerId == playerId && (it.sequence ?: -1) >= 0 }) {
-                        true -> {
-                            Icon(
-                                imageVector = Icons.Filled.CheckCircle,
-                                contentDescription = "player had a turn",
+                        Row {
+                            when (game.gameMode) {
+                                GameMode.LAN -> {
+                                    Icon(
+                                        imageVector = Icons.Default.Lan,
+                                        contentDescription = "Share text",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .padding(end = 10.dp)
+                                    )
+                                }
+
+                                GameMode.INET -> Icon(
+                                    imageVector = Icons.Default.Wifi,
+                                    contentDescription = "Share text",
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .padding(end = 10.dp)
+                                )
+
+                                else -> Icon(
+                                    imageVector = Icons.Default.QuestionMark,
+                                    contentDescription = "Share text"
+                                )
+                            }
+                            val generatedProfile = generateOrganicProfile(game.id)
+                            Box(
                                 modifier = Modifier
                                     .size(50.dp)
-                                    .padding(end = 10.dp, start = 10.dp),
-                                tint = Color.Green
-                            )
-                        }
+                                    .background(generatedProfile.backgroundColor),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CustomRoundedPolygon(
+                                    generated = generatedProfile,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            when (players.any {
+                                it.playerId == playerId && (it.sequence ?: -1) >= 0
+                            }) {
+                                true -> {
+                                    Icon(
+                                        imageVector = Icons.Filled.CheckCircle,
+                                        contentDescription = "player had a turn",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .padding(end = 10.dp, start = 10.dp),
+                                        tint = Color.Green
+                                    )
+                                }
 
-                        false -> {
+                                false -> {
+                                    Icon(
+                                        imageVector = Icons.Filled.AccessTime,
+                                        contentDescription = "player has not had a turn",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .padding(end = 10.dp, start = 10.dp)
+                                    )
+                                }
+                            }
+
+                            Column {
+                                Text(
+                                    text = "Started: ${game.createdAt.localDateTimestamp()}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+
+                                Text(
+                                    text = "Turns: $turns",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                        when (players.any {
+                            it.playerId == playerId && (it.sequence ?: -1) >= 0
+                        }) {
+                            true -> {
+                                Text(
+                                    text = "Your work here is done",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                                )
+                            }
+
+                            false -> {
+                                Text(
+                                    text = "Waiting for turn",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                                )
+                            }
+                        }
+                        if (turns == 0) {
                             Icon(
-                                imageVector = Icons.Filled.AccessTime,
-                                contentDescription = "player has not had a turn",
+                                imageVector = Icons.Filled.Cake,
+                                contentDescription = "Waiting for players. the cake is a lie",
                                 modifier = Modifier
-                                    .size(50.dp)
-                                    .padding(end = 10.dp, start = 10.dp)
+                                    .size(300.dp)
+                                    .padding(end = 10.dp, start = 10.dp).fillMaxWidth()
+                                    .align(Alignment.CenterHorizontally)
                             )
                         }
                     }
-
-                    Column {
-                        Text(
-                            text = "Started: ${game.createdAt.localDateTimestamp()}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        Text(
-                            text = "Turns: $turns",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
                 }
-                when (players.any { it.playerId == playerId && (it.sequence ?: -1) >= 0 }) {
-                    true -> {
-                        Text(
-                            text = "Your work here is done",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-                    }
-
-                    false -> {
-                        Text(
-                            text = "Waiting for turn",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-                    }
+                itemsIndexed(players.filter { (it.sequence ?: -1) >= 0 }
+                    .sortedBy { it.sequence }) { index, player ->
+                    RosterPlayerItem(index, player, playerId)
                 }
-                if (turns == 0) {
-                    val player = players.first { it.playerId == playerId }
-                    Icon(
-                        imageVector = Icons.Filled.Cake,
-                        contentDescription = "Waiting for players the cake is a lie",
+                item {
+                    Text(
+                        "Joined",
                         modifier = Modifier
-                            .size(500.dp)
-                            .padding(end = 10.dp, start = 10.dp)
-                            .align(Alignment.CenterHorizontally)
+                            .fillMaxWidth()
+                            .padding(top = 15.dp),
+                        fontSize = 30.sp,
+                        textAlign = TextAlign.Center
                     )
-                    if (player.isLeader) {
-                        val appSettings: AppSettings = koinInject()
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 10.dp), thickness = 5.dp
+                    )
+                }
+                itemsIndexed(players.filter { (it.sequence ?: -1) < 0 }
+                    .sortedBy { it.sequence }) { index, rosterPlayer ->
+                    RosterPlayerItem(index, rosterPlayer, playerId)
+                }
+                item {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 10.dp), thickness = 5.dp
+                    )
+                    val rosterPlayer = players.first { it.playerId == playerId }
+                    if (rosterPlayer.isLeader) {
                         SelectableReadOnlyTextWithShare(
+                            Modifier.padding(bottom = 15.dp),
                             getShareLink(
-                                appSettings.playDeepLink,
-                                player.address,
+                                stringResource(R.string.deeplink_scheme) + "://" +
+                                        stringResource(R.string.deeplink_host) +
+                                        stringResource(R.string.deeplink_play),
+                                rosterPlayer.address,
                                 game.id
                             )
                         )
                     }
                 }
-
-                ListOfPlayers(players.filter { (it.sequence ?: -1) >= 0 }, playerId)
-                Text(
-                    "Joined",
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 15.dp),
-                    fontSize = 30.sp
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 10.dp), thickness = 5.dp
-                )
-                ListOfPlayers(players.filter { (it.sequence ?: -1) < 0 }, playerId)
-
             }
         }
     }
 }
 
 @Composable
-fun ListOfPlayers(players: List<Roster>, playerId: Uuid) {
-    LazyColumn(modifier = Modifier.padding(horizontal = 3.dp)) {
-        itemsIndexed(players.sortedBy { it.sequence }) { index, player ->
-            val rowColor = if (index % 2 == 0) {
-                MaterialTheme.colorScheme.surfaceVariant
-            } else {
-                MaterialTheme.colorScheme.background
-            }
-            Row(
+fun RosterPlayerItem(index: Int, player: Roster, playerId: Uuid) {
+    val rowColor = if (index % 2 == 0) {
+        MaterialTheme.colorScheme.surfaceVariant
+    } else {
+        MaterialTheme.colorScheme.background
+    }
+    Row(
+        modifier = Modifier
+            .background(rowColor)
+            .fillMaxWidth()
+    ) {
+        var m = Modifier
+            .size(50.dp)
+            .rotate(90f)
+            .padding(horizontal = 5.dp)
+        if (playerId == player.playerId) {
+            m = m.dropShadow(
+                shape = RoundedCornerShape(3.dp), shadow = Shadow(
+                    radius = 4.dp,
+                    spread = 2.dp,
+                    color = Color.Yellow,
+                    offset = DpOffset(x = 0.dp, 0.dp)
+                )
+            )
+        }
+        PixelArtImage(
+            generatePixelProfile4Bit(player.playerId), PIXEL_PALETTE_4_BIT, m
+        )
+        if (player.sequence != null && player.sequence >= 0 && player.sequence % 2 == 0) {
+            Icon(
+                imageVector = Icons.Filled.Textsms,
+                contentDescription = "Sentence Turn",
                 modifier = Modifier
-                    .background(rowColor)
-                    .fillMaxWidth()
-            ) {
-                var m = Modifier
                     .size(50.dp)
-                    .rotate(90f)
-                    .padding(horizontal = 5.dp)
-                if (playerId == player.playerId) {
-                    m = m.dropShadow(
-                        shape = RoundedCornerShape(3.dp), shadow = Shadow(
-                            radius = 4.dp,
-                            spread = 2.dp,
-                            color = Color.Yellow,
-                            offset = DpOffset(x = 0.dp, 0.dp)
-                        )
-                    )
-                }
-                PixelArtImage(
-                    generatePixelProfile4Bit(player.playerId), PIXEL_PALETTE_4_BIT, m
-                )
-                if (player.sequence != null && player.sequence >= 0 && player.sequence % 2 == 0) {
-                    Icon(
-                        imageVector = Icons.Filled.Textsms,
-                        contentDescription = "Sentence Turn",
-                        modifier = Modifier
-                            .size(50.dp)
-                            .padding(end = 10.dp, start = 10.dp)
-                    )
-                } else if((player.sequence ?: 0) >= 0) {
-                    Icon(
-                        imageVector = Icons.Filled.Draw,
-                        contentDescription = "Draw Turn",
-                        modifier = Modifier
-                            .size(50.dp)
-                            .padding(end = 10.dp, start = 10.dp)
-                    )
-                }
-                else{
-                     Icon(
-                        imageVector = Icons.Filled.AccessTime,
-                        contentDescription = "Waiting",
-                        modifier = Modifier
-                            .size(50.dp)
-                            .padding(end = 10.dp, start = 10.dp)
-                    )
-                }
-                Text(
-                    player.nickname,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-            }
+                    .padding(end = 10.dp, start = 10.dp)
+            )
+        } else if ((player.sequence ?: 0) >= 0) {
+            Icon(
+                imageVector = Icons.Filled.Draw,
+                contentDescription = "Draw Turn",
+                modifier = Modifier
+                    .size(50.dp)
+                    .padding(end = 10.dp, start = 10.dp)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Filled.AccessTime,
+                contentDescription = "Waiting",
+                modifier = Modifier
+                    .size(50.dp)
+                    .padding(end = 10.dp, start = 10.dp)
+            )
         }
+        Text(
+            player.nickname,
+            modifier = Modifier.align(Alignment.CenterVertically)
+        )
     }
 }
 
 @Composable
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+//@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 fun InProgressGameDetailsPreview() {
     val playerId = Uuid.random()
     val gameId = Uuid.random()
@@ -402,6 +428,36 @@ fun InProgressGameDetailsPreview() {
             Clock.System.now()
         ),
     )
+
+    AppTheme {
+        InProgressGameDetailsScreen(game, roster, playerId, onBack = {})
+    }
+}
+
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, device = Devices.PIXEL, apiLevel = 37)
+fun InProgressGameDetailsSoloPreview() {
+    val playerId = Uuid.random()
+    val gameId = Uuid.random()
+    val game = Game(
+        gameId,
+        timeout = 100,
+        turns = null,
+        createdAt = Instant.fromEpochSeconds(1786057118),
+        gameMode = GameMode.LAN
+    )
+    val roster = listOf(
+        Roster(
+            gameId,
+            playerId,
+            "Me",
+            "http://127.0.0.1:3459",
+            -1,
+            true,
+            Clock.System.now()
+        ),
+    )
+
     AppTheme {
         InProgressGameDetailsScreen(game, roster, playerId, onBack = {})
     }

@@ -54,13 +54,13 @@ fun getShareLink(deepLink: String, address: String, gameId: Uuid): String {
 }
 
 @Composable
-fun SelectableReadOnlyTextWithShare(link: String) {
+fun SelectableReadOnlyTextWithShare(modifier: Modifier = Modifier, link: String) {
     val context = LocalContext.current
     OutlinedTextField(
         value = link,
         onValueChange = {},
         readOnly = true,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         label = { Text("Link to share:") },
         trailingIcon = {
             IconButton(
@@ -104,8 +104,7 @@ fun StartNetGameScreen(
 
     LaunchedEffect(Unit) {
         val isWifiOn = NetworkUtils.isWifiConnected(context)
-        val ipAddress = uiState.address
-        viewModel.onStartServerRequested(isWifiOn, ipAddress)
+        viewModel.onStartServerRequested(isWifiOn)
     }
 
     LaunchedEffect(Unit) {
@@ -143,7 +142,6 @@ fun StartNetGameScreen(
         }
     }
 
-    // todo fill in onChange*
     ShareGame(
         uiState,
         onNickNameChange = { viewModel.updateNickname(it) },
@@ -243,7 +241,7 @@ fun ShareGame(
                     },
                 )
                 HorizontalDivider(modifier = Modifier.padding(20.dp))
-                SelectableReadOnlyTextWithShare(
+                SelectableReadOnlyTextWithShare(link=
                     getShareLink(
                         stringResource(R.string.deeplink_scheme)+"://"+
                         stringResource(R.string.deeplink_host)+
@@ -265,10 +263,7 @@ fun ShareGame(
 fun ShareGamePreview() {
     val sd = NewNetGameUiState(
         Uuid.NIL, GameMode.LAN, Player(Uuid.NIL, nickname = "Muthafucka"),
-        getShareLink(
-            stringResource(R.string.deeplink_host), address = "http://192.168.1.10:3947",
-            gameId = Uuid.parse("4d8041a7-2001-4960-bb42-f9e66bb1c58b")
-        ),
+        address = "http://192.168.1.10:3947",
     )
     AppTheme {
         ShareGame(sd,  {}, {}, {}, {}, {})

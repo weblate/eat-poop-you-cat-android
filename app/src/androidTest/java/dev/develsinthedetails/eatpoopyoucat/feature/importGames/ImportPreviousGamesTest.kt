@@ -1,7 +1,7 @@
 package dev.develsinthedetails.eatpoopyoucat.feature.importGames
 
 import android.app.Activity
-import androidx.room.Room
+import androidx.room3.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import dev.develsinthedetails.eatpoopyoucat.app.AppSettings
 import dev.develsinthedetails.eatpoopyoucat.core.utilities.testEntriesGame1
@@ -49,9 +49,8 @@ class ImportPreviousGamesTest {
         appSettings = AppSettings(context)
         appSettings.waitForReady()
 
-        database = Room.inMemoryDatabaseBuilder(
+        database = Room.inMemoryDatabaseBuilder<AppDatabase>(
             context,
-            dev.develsinthedetails.eatpoopyoucat.data.local.AppDatabase::class.java
         ).build()
         gameDao = database.gameDao()
         entryDao = database.entryDao()
