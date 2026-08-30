@@ -19,10 +19,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Replay
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.VerticalAlignTop
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -146,7 +143,7 @@ fun PreviousGameScreen(
                             }) {
 
                             Icon(
-                                Icons.Rounded.VerticalAlignTop,
+                                painter = painterResource(id = R.drawable.ic_vertical_align_top_rounded),
                                 modifier = Modifier.padding(3.dp),
                                 contentDescription = stringResource(id = R.string.scroll_to_top)
                             )
@@ -156,7 +153,7 @@ fun PreviousGameScreen(
                             onClick = onContinueGame
                         ) {
                             Icon(
-                                Icons.Rounded.Replay,
+                                painter = painterResource(id = R.drawable.ic_replay_rounded),
                                 modifier = Modifier.padding(3.dp),
                                 contentDescription = stringResource(id = R.string.continue_previous_game)
                             )
@@ -166,7 +163,7 @@ fun PreviousGameScreen(
                             onClick = shareGame()
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.Share,
+                                painter = painterResource(id = R.drawable.ic_share_filled),
                                 modifier = Modifier.padding(3.dp),
                                 contentDescription = stringResource(R.string.share_this_game)
                             )

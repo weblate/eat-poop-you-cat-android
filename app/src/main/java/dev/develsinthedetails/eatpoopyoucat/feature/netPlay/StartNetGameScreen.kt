@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -30,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -61,6 +60,7 @@ fun SelectableReadOnlyTextWithShare(modifier: Modifier = Modifier, link: String)
         onValueChange = {},
         readOnly = true,
         modifier = modifier.fillMaxWidth(),
+        singleLine = true,
         label = { Text("Link to share:") },
         trailingIcon = {
             IconButton(
@@ -77,7 +77,7 @@ fun SelectableReadOnlyTextWithShare(modifier: Modifier = Modifier, link: String)
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Share,
+                    painter = painterResource(id = R.drawable.ic_share_filled),
                     contentDescription = "Share Game"
                 )
             }
@@ -239,16 +239,6 @@ fun ShareGame(
                     label = {
                         Text("Timeout for a turn")
                     },
-                )
-                HorizontalDivider(modifier = Modifier.padding(20.dp))
-                SelectableReadOnlyTextWithShare(link=
-                    getShareLink(
-                        stringResource(R.string.deeplink_scheme)+"://"+
-                        stringResource(R.string.deeplink_host)+
-                                stringResource(R.string.deeplink_play),
-                        uiState.address,
-                        uiState.gameId
-                    )
                 )
                 HorizontalDivider(modifier = Modifier.padding(20.dp))
                 Text("wall of words explaining stuff")

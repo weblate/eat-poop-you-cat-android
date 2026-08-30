@@ -15,10 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lan
-import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,9 +29,11 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import dev.develsinthedetails.eatpoopyoucat.R
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.CustomRoundedPolygon
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.PixelArtImage
 import dev.develsinthedetails.eatpoopyoucat.core.ui.components.Scaffolds
@@ -89,12 +87,12 @@ fun InProgressGames(
             }
             val waitingGame = games.filter { g ->
                 g.roster.any { r ->
-                    r.playerId == playerId && (r.sequence ?: -1) < 0
+                    r.playerId == playerId && r.sequence < 0
                 }
             }
             val notWaiting = games.filter { g ->
                 g.roster.any { r ->
-                    r.playerId == playerId && (r.sequence ?: -1) >= 0
+                    r.playerId == playerId && r.sequence >= 0
                 }
             }
             Column {
@@ -157,7 +155,7 @@ private fun ListGames(
                     when (game.gameMode) {
                         GameMode.LAN -> {
                             Icon(
-                                imageVector = Icons.Default.Lan,
+                                painter = painterResource(id = R.drawable.ic_lan),
                                 contentDescription = "Share text",
                                 modifier = Modifier
                                     .size(50.dp)
@@ -167,7 +165,7 @@ private fun ListGames(
 
                         GameMode.INET ->
                             Icon(
-                                imageVector = Icons.Default.Wifi,
+                                painter = painterResource(id = R.drawable.ic_wifi),
                                 contentDescription = "Share text",
                                 modifier = Modifier
                                     .size(50.dp)
@@ -175,7 +173,7 @@ private fun ListGames(
                             )
 
                         else -> Icon(
-                            imageVector = Icons.Default.QuestionMark,
+                            painter = painterResource(id = R.drawable.ic_question_mark),
                             contentDescription = "Share text"
                         )
                     }
@@ -212,8 +210,6 @@ private fun ListGames(
                             PixelArtImage(
                                 generatePixelProfile4Bit(entry.playerId),
                                 PIXEL_PALETTE_4_BIT, m
-
-
                             )
                         }
                     }

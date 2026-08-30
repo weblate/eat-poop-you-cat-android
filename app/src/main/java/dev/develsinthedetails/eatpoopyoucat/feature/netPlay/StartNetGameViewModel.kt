@@ -132,11 +132,11 @@ class StartNetGameViewModel(
         if (isNicknameValid())
             viewModelScope.launch {
                 val state = _uiState.value
-                repository.updatePlayer(state.player)
+                repository.upsertPlayer(state.player)
                 repository.createGame(Game(state.gameId, state.timeout,null, Clock.System.now(), gameMode = state.gameMode))
                 repository.upsertRoster(
                     Roster(
-                        state.gameId, state.player.id, state.player.nickname, state.address, null, true,
+                        state.gameId, state.player.id, state.player.nickname, state.address, -1, true,
                         Clock.System.now()
                     )
                 )

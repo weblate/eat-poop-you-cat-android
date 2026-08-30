@@ -30,9 +30,10 @@ class AppRepository(
         playerDao.insert(player.copy(createdAt = Clock.System.now()))
     }
 
-    suspend fun updatePlayer(player: Player) = playerDao.update(player)
+    suspend fun upsertPlayer(player: Player) = playerDao.upsert(player)
     fun getPlayerFlow(id: Uuid): Flow<Player?> = playerDao.getFlow(id)
     suspend fun getPlayer(id: Uuid): Player? = playerDao.get(id)
+    suspend fun getAllPlayers(): List<Player> = playerDao.getAll()
     // ==========================================
     // Game functions
     // ==========================================
@@ -80,7 +81,7 @@ class AppRepository(
     // ==========================================
     // Roster functions
     // ==========================================
-    fun getAllRosters(): Flow<List<Roster>> = rosterDao.getAll()
+    suspend fun getAllRosters(): List<Roster> = rosterDao.getAll()
     suspend fun getRostersByGame(id: Uuid): List<Roster> = rosterDao.getAllByGame(id)
     fun getRostersByGameFlow(id: Uuid): Flow<List<Roster>> = rosterDao.getAllByGameFlow(id)
     fun getLeaderByGame(id: Uuid): Flow<Roster> = rosterDao.getLeaderByGame(id)
@@ -90,7 +91,7 @@ class AppRepository(
     suspend fun deletePlayer(playerId: Uuid) = rosterDao.deletePlayer(playerId)
     suspend fun delete(gameId: Uuid, playerId: Uuid) = rosterDao.delete(gameId, playerId)
     suspend fun upsertRoster(roster: Roster) = rosterDao.upsert(roster)
-    suspend fun updateRosters(rosters: List<Roster>) = rosterDao.insert(rosters)
+    suspend fun upsertRosters(rosters: List<Roster>) = rosterDao.upsert(rosters)
     suspend fun deleteAll() = rosterDao.deleteAll()
     suspend fun updateRosterPing(address: Uri, gameId: Uuid, time: Instant) =
         rosterDao.updateRosterPing(address, gameId, time)

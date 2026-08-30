@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.PersonAddAlt
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -93,7 +91,7 @@ fun NicknameColumn(
             }
             Row(modifier = Modifier) {
                 AppButton(
-                    imageVector = Icons.Rounded.PersonAddAlt,
+                    icon = R.drawable.ic_person_add_rounded,
                     modifier = modifier.fillMaxWidth(),
                     text = R.string.that_s_me,
                     iconDescription = R.string.that_s_me,

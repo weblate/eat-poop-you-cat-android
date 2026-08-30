@@ -17,6 +17,7 @@ import io.ktor.server.routing.put
 
 class GameRouter(private val repository: AppRepository, private val client: Client, private val appSettings: AppSettings) {
     fun Route.gameRoutes() {
+        
         /**
          * Gets game and roster of player
          */

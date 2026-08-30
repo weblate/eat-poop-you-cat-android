@@ -18,8 +18,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -193,7 +192,7 @@ fun GameListItem(game: GameWithEntries, onGotoGame: () -> Unit, onDelete: () -> 
                 },
             onClick = { showDeleteConfirmation = true }) {
             Icon(
-                Icons.Rounded.DeleteForever,
+                painter = painterResource(id = R.drawable.ic_delete_forever_rounded),
                 modifier = Modifier,
                 contentDescription = stringResource(id = R.string.delete_game),
             )

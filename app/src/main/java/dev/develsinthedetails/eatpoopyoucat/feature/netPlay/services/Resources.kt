@@ -22,7 +22,7 @@ class GetGameWithRosters(val gameId: Uuid)
  * response: ok or conflict
  */
 @Serializable
-@Resource("/join")
+@Resource("/game/join")
 class JoinGame
 
 /**

@@ -13,10 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material.icons.rounded.NetworkPing
-import androidx.compose.material.icons.rounded.Start
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -36,6 +32,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -163,7 +160,7 @@ fun HomeScreen(
                         Text(stringResource(id = R.string.dialog_start_game))
                         Spacer(modifier = Modifier.size(5.dp))
                         Icon(
-                            Icons.Rounded.Start,
+                            painter = painterResource(id = R.drawable.ic_start_rounded),
                             contentDescription = stringResource(id = R.string.dialog_start_game),
                         )
                     }
@@ -178,7 +175,7 @@ fun HomeScreen(
                         Text(pluralStringResource(id = R.plurals.previous_games, 2))
                         Spacer(modifier = Modifier.size(5.dp))
                         Icon(
-                            Icons.Rounded.History,
+                            painter = painterResource(id = R.drawable.ic_history_rounded),
                             contentDescription = null,
                         )
                     }
@@ -193,7 +190,7 @@ fun HomeScreen(
                         Text("In Progress Games")
                         Spacer(modifier = Modifier.size(5.dp))
                         Icon(
-                            Icons.Rounded.NetworkPing,
+                            painter = painterResource(id = R.drawable.ic_network_ping_rounded),
                             contentDescription = null,
                         )
                     }

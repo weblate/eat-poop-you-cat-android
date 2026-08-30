@@ -5,9 +5,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -24,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -70,7 +68,7 @@ object Scaffolds {
                     actions = {
                         IconButton(onClick = { showMenu = !showMenu }) {
                             Icon(
-                                imageVector = Icons.Default.MoreVert,
+                                painter = painterResource(id = R.drawable.ic_more_vert_filled),
                                 contentDescription = stringResource(R.string.open)
                             )
                         }
@@ -139,7 +137,7 @@ object Scaffolds {
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                painter = painterResource(id = R.drawable.ic_arrow_back_rounded),
                                 contentDescription = "Back"
                             )
                         }
@@ -147,7 +145,7 @@ object Scaffolds {
                     actions = {
                         IconButton(onClick = { showMenu = !showMenu }) {
                             Icon(
-                                imageVector = Icons.Default.MoreVert,
+                                painter = painterResource(id = R.drawable.ic_more_vert_filled),
                                 contentDescription = stringResource(id = R.string.open)
                             )
                         }
@@ -201,7 +199,7 @@ object Scaffolds {
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                painter = painterResource(id = R.drawable.ic_arrow_back_rounded),
                                 contentDescription = "Back"
                             )
                         }
@@ -209,7 +207,7 @@ object Scaffolds {
                     actions = {
                         IconButton(onClick = { showMenu = !showMenu }) {
                             Icon(
-                                imageVector = Icons.Default.MoreVert,
+                                painter = painterResource(id = R.drawable.ic_more_vert_filled),
                                 contentDescription = "open"
                             )
                         }
@@ -269,7 +267,7 @@ object Scaffolds {
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                painter = painterResource(id = R.drawable.ic_arrow_back_rounded),
                                 contentDescription = "Back"
                             )
                         }

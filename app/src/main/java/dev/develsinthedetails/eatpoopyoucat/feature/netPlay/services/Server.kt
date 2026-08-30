@@ -9,6 +9,7 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import dev.develsinthedetails.eatpoopyoucat.R
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.cbor.cbor
 import io.ktor.server.application.install
 import io.ktor.server.engine.EmbeddedServer
@@ -18,7 +19,9 @@ import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.compression.zstd.zstd
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.resources.Resources
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.routing
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.android.ext.android.inject
@@ -64,10 +67,16 @@ class Server : Service() {
                         zstd()
                     }
                     install(Resources)
+
                     val gameRouter by inject<GameRouter>()
                     routing {
                         with(gameRouter) {
                             gameRoutes()
+                        }
+                    }
+                    install(StatusPages) {
+                        status(HttpStatusCode.NotFound) { call, status ->
+                            call.respondText(text = "404: Page Not Found", status = status)
                         }
                     }
                 }.start(wait = false)

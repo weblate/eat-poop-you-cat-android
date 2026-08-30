@@ -15,11 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Send
-import androidx.compose.material.icons.automirrored.rounded.Undo
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -35,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -87,7 +81,7 @@ fun SubmitButton(
     onSubmit: () -> Unit,
 ) {
     AppButton(
-        imageVector = Icons.AutoMirrored.Rounded.Send,
+        icon = R.drawable.ic_send_rounded,
         modifier = modifier,
         text = R.string.submit,
         iconDescription = R.string.submit,
@@ -144,7 +138,7 @@ fun ConfirmDialog(
                         .fillMaxWidth()
                 ) {
                     Image(
-                        imageVector = Icons.Rounded.Warning,
+                        painter = painterResource(id = R.drawable.ic_warning_rounded),
                         contentDescription = stringResource(id = R.string.end_game_for_all),
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.inverseSurface),
                     )
@@ -163,7 +157,7 @@ fun ConfirmDialog(
                     AppButton(
                         onClick = onConfirm,
                         text = R.string.yes,
-                        imageVector = Icons.Rounded.Check,
+                        icon = R.drawable.ic_check_rounded,
                         iconDescription = R.string.end_game_for_all,
                     )
                     AppButton(
@@ -171,7 +165,7 @@ fun ConfirmDialog(
                         text = R.string.no,
                         iconDescription = R.string.no,
                         colors = secondaryButtonColors(),
-                        imageVector = Icons.AutoMirrored.Rounded.Undo
+                        icon = R.drawable.ic_undo_rounded,
                     )
                 }
             }
@@ -189,7 +183,6 @@ fun AppButton(
     enabled: Boolean = true,
     colors: ButtonColors = primaryButtonColors(),
     elevation: ButtonElevation = ButtonDefaults.elevatedButtonElevation(),
-    imageVector: ImageVector?
 ) {
     Button(
         modifier = modifier,
@@ -206,13 +199,6 @@ fun AppButton(
                 modifier = Modifier.padding(start = 5.dp),
                 contentDescription = stringResource(id = iconDescription),
                 painter = painterResource(id = icon),
-            )
-        }
-        if (imageVector != null && icon == null && iconDescription != null) {
-            Icon(
-                imageVector = imageVector,
-                modifier = Modifier.padding(start = 5.dp),
-                contentDescription = stringResource(id = iconDescription),
             )
         }
     }

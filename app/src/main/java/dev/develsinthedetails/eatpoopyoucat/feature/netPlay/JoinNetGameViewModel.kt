@@ -99,22 +99,29 @@ class JoinNetGameViewModel(
             _uiState.update { it.copy(isLoading = true) }
             if (playerAddress != null && gameId != null)
                 viewModelScope.launch {
+                    val player = _uiState.value.player
+
                     val game = client.getGame(playerAddress!!.toUri(), gameId!!)
                     if (game !== null) {
-                        repository.updateGame(game.game)
-                        repository.updateRosters(game.roster)
-                        val player = _uiState.value.player
-                        client.joinGame(
-                            playerAddress!!.toUri(), Roster(
-                                gameId!!,
-                                player.id,
-                                player.nickname,
-                                _uiState.value.address,
-                                null,
-                                false,
-                                Clock.System.now()
-                            )
+                        val myRoster = Roster(
+                            gameId!!,
+                            player.id,
+                            player.nickname,
+                            _uiState.value.address,
+                            -1,
+                            false,
+                            Clock.System.now()
                         )
+                        client.joinGame(playerAddress!!.toUri(), myRoster)
+                        repository.updateGame(game.game)
+                        for (r in game.roster) {
+                            repository.upsertPlayer(Player(r.playerId, r.nickname, r.address))
+                        }
+                        repository.upsertPlayer(player)
+                        repository.upsertRosters(game.roster)
+
+                        repository.upsertRoster(myRoster)
+                        client.joinGame(playerAddress!!.toUri(), myRoster)
                     }
 
                 }

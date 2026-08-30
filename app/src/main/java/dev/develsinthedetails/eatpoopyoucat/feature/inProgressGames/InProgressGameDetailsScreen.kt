@@ -13,15 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Cake
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Draw
-import androidx.compose.material.icons.filled.Lan
-import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.filled.Textsms
-import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +27,7 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
@@ -90,11 +82,12 @@ fun InProgressGameDetailsScreen(
                 .padding(horizontal = 15.dp),
             color = MaterialTheme.colorScheme.background,
         ) {
-            val turns = players?.count { (it.sequence ?: -1) >= 0 } ?: 0
+            val turns = players?.count { it.sequence >= 0 } ?: 0
             if (game == null || players == null) {
                 Spinner()
                 return@Surface
             }
+            val thisRosterPlayer = players.first { it.playerId == playerId }
             LazyColumn(
                 modifier = Modifier
                     .padding(horizontal = 3.dp)
@@ -109,7 +102,7 @@ fun InProgressGameDetailsScreen(
                             when (game.gameMode) {
                                 GameMode.LAN -> {
                                     Icon(
-                                        imageVector = Icons.Default.Lan,
+                                        painter = painterResource(id = R.drawable.ic_lan),
                                         contentDescription = "Share text",
                                         modifier = Modifier
                                             .size(50.dp)
@@ -118,7 +111,7 @@ fun InProgressGameDetailsScreen(
                                 }
 
                                 GameMode.INET -> Icon(
-                                    imageVector = Icons.Default.Wifi,
+                                    painter = painterResource(id = R.drawable.ic_wifi),
                                     contentDescription = "Share text",
                                     modifier = Modifier
                                         .size(50.dp)
@@ -126,7 +119,7 @@ fun InProgressGameDetailsScreen(
                                 )
 
                                 else -> Icon(
-                                    imageVector = Icons.Default.QuestionMark,
+                                    painter = painterResource(id = R.drawable.ic_question_mark),
                                     contentDescription = "Share text"
                                 )
                             }
@@ -143,11 +136,11 @@ fun InProgressGameDetailsScreen(
                                 )
                             }
                             when (players.any {
-                                it.playerId == playerId && (it.sequence ?: -1) >= 0
+                                it.playerId == playerId && it.sequence >= 0
                             }) {
                                 true -> {
                                     Icon(
-                                        imageVector = Icons.Filled.CheckCircle,
+                                        painter = painterResource(id = R.drawable.ic_check_circle),
                                         contentDescription = "player had a turn",
                                         modifier = Modifier
                                             .size(50.dp)
@@ -158,7 +151,7 @@ fun InProgressGameDetailsScreen(
 
                                 false -> {
                                     Icon(
-                                        imageVector = Icons.Filled.AccessTime,
+                                        painter = painterResource(id = R.drawable.ic_schedule),
                                         contentDescription = "player has not had a turn",
                                         modifier = Modifier
                                             .size(50.dp)
@@ -180,7 +173,7 @@ fun InProgressGameDetailsScreen(
                             }
                         }
                         when (players.any {
-                            it.playerId == playerId && (it.sequence ?: -1) >= 0
+                            it.playerId == playerId && it.sequence >= 0
                         }) {
                             true -> {
                                 Text(
@@ -198,19 +191,32 @@ fun InProgressGameDetailsScreen(
                                 )
                             }
                         }
+                        if (thisRosterPlayer.isLeader) {
+                            SelectableReadOnlyTextWithShare(
+                                Modifier.padding(bottom = 15.dp),
+                                getShareLink(
+                                    stringResource(R.string.deeplink_scheme) + "://" +
+                                            stringResource(R.string.deeplink_host) +
+                                            stringResource(R.string.deeplink_play),
+                                    thisRosterPlayer.address,
+                                    game.id
+                                )
+                            )
+                        }
                         if (turns == 0) {
                             Icon(
-                                imageVector = Icons.Filled.Cake,
+                                painter = painterResource(id = R.drawable.ic_cake),
                                 contentDescription = "Waiting for players. the cake is a lie",
                                 modifier = Modifier
-                                    .size(300.dp)
+                                    .size(200.dp)
                                     .padding(end = 10.dp, start = 10.dp).fillMaxWidth()
                                     .align(Alignment.CenterHorizontally)
                             )
                         }
+
                     }
                 }
-                itemsIndexed(players.filter { (it.sequence ?: -1) >= 0 }
+                itemsIndexed(players.filter { it.sequence >= 0 }
                     .sortedBy { it.sequence }) { index, player ->
                     RosterPlayerItem(index, player, playerId)
                 }
@@ -227,7 +233,7 @@ fun InProgressGameDetailsScreen(
                         modifier = Modifier.padding(vertical = 10.dp), thickness = 5.dp
                     )
                 }
-                itemsIndexed(players.filter { (it.sequence ?: -1) < 0 }
+                itemsIndexed(players.filter { it.sequence < 0 }
                     .sortedBy { it.sequence }) { index, rosterPlayer ->
                     RosterPlayerItem(index, rosterPlayer, playerId)
                 }
@@ -235,19 +241,6 @@ fun InProgressGameDetailsScreen(
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 10.dp), thickness = 5.dp
                     )
-                    val rosterPlayer = players.first { it.playerId == playerId }
-                    if (rosterPlayer.isLeader) {
-                        SelectableReadOnlyTextWithShare(
-                            Modifier.padding(bottom = 15.dp),
-                            getShareLink(
-                                stringResource(R.string.deeplink_scheme) + "://" +
-                                        stringResource(R.string.deeplink_host) +
-                                        stringResource(R.string.deeplink_play),
-                                rosterPlayer.address,
-                                game.id
-                            )
-                        )
-                    }
                 }
             }
         }
@@ -283,17 +276,17 @@ fun RosterPlayerItem(index: Int, player: Roster, playerId: Uuid) {
         PixelArtImage(
             generatePixelProfile4Bit(player.playerId), PIXEL_PALETTE_4_BIT, m
         )
-        if (player.sequence != null && player.sequence >= 0 && player.sequence % 2 == 0) {
+        if (player.sequence >= 0 && player.sequence % 2 == 0) {
             Icon(
-                imageVector = Icons.Filled.Textsms,
+                painter = painterResource(id = R.drawable.ic_sms),
                 contentDescription = "Sentence Turn",
                 modifier = Modifier
                     .size(50.dp)
                     .padding(end = 10.dp, start = 10.dp)
             )
-        } else if ((player.sequence ?: 0) >= 0) {
+        } else if (player.sequence >= 0) {
             Icon(
-                imageVector = Icons.Filled.Draw,
+                painter = painterResource(id = R.drawable.ic_draw_rounded),
                 contentDescription = "Draw Turn",
                 modifier = Modifier
                     .size(50.dp)
@@ -301,7 +294,7 @@ fun RosterPlayerItem(index: Int, player: Roster, playerId: Uuid) {
             )
         } else {
             Icon(
-                imageVector = Icons.Filled.AccessTime,
+                painter = painterResource(id = R.drawable.ic_schedule),
                 contentDescription = "Waiting",
                 modifier = Modifier
                     .size(50.dp)

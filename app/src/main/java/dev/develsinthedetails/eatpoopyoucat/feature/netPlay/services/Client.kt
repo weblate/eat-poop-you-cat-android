@@ -12,12 +12,15 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
+import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.cbor.cbor
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -31,6 +34,9 @@ class Client(val repository: AppRepository) {
             cbor()
         }
         install(Resources)
+        defaultRequest {
+            contentType(ContentType.Application.Cbor)
+        }
     }
 
     suspend fun ping(address: Uri, gameId: Uuid) {

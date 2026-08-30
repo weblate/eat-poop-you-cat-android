@@ -18,11 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.visible
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.automirrored.rounded.Redo
-import androidx.compose.material.icons.automirrored.rounded.Undo
-import androidx.compose.material.icons.rounded.Draw
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -171,7 +166,7 @@ private fun DrawScreen(
                                 containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                                 elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                             ) {
-                                Icon(Icons.AutoMirrored.Filled.Send, "Localized description")
+                                Icon(painter = painterResource(id = R.drawable.ic_send_rounded), "Localized description")
                             }
                         else
                             SubmitButton(onSubmit = onSubmit)
@@ -372,7 +367,7 @@ private fun DrawingPropertiesMenu(
 
     ) {
         Icon(
-            Icons.Rounded.Draw,
+            painter = painterResource(id = R.drawable.ic_draw_rounded),
             tint = selectedTint(drawMode, DrawMode.Draw),
             contentDescription = stringResource(id = R.string.draw),
             modifier = Modifier.size(48.dp),
@@ -385,8 +380,6 @@ private fun DrawingPropertiesMenu(
         modifier = Modifier.background(color = selectedBackground(drawMode, DrawMode.Erase))
     ) {
         Icon(
-//            Icons.Rounded.InkEraser,
-//          Future: replace with "Icons.Rounded.InkEraser" when it's added to the stable Icons
             painter = painterResource(id = R.drawable.ic_eraser_black_24),
             tint = selectedTint(drawMode, DrawMode.Erase),
             contentDescription = stringResource(id = R.string.erase),
@@ -400,7 +393,7 @@ private fun DrawingPropertiesMenu(
         enabled = (undoCount > 0),
     ) {
         Icon(
-            Icons.AutoMirrored.Rounded.Undo,
+            painter = painterResource(id = R.drawable.ic_undo_rounded),
             contentDescription = stringResource(id = R.string.undo),
             modifier = Modifier.size(48.dp),
         )
@@ -412,7 +405,7 @@ private fun DrawingPropertiesMenu(
         enabled = (redoCount > 0)
     ) {
         Icon(
-            Icons.AutoMirrored.Rounded.Redo,
+            painter = painterResource(id = R.drawable.ic_redo_rounded),
             contentDescription = stringResource(id = R.string.redo),
             modifier = Modifier.size(48.dp),
         )

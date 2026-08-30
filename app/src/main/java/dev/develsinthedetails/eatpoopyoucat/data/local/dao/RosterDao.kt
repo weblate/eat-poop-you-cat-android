@@ -15,7 +15,7 @@ import kotlin.uuid.Uuid
 @Dao
 interface RosterDao {
     @Query("SELECT * FROM roster")
-    fun getAll(): Flow<List<Roster>>
+    suspend fun getAll(): List<Roster>
 
     @Query("SELECT * FROM roster WHERE gameId=:id")
     suspend fun getAllByGame(id: Uuid): List<Roster>
@@ -59,6 +59,6 @@ interface RosterDao {
     suspend fun deleteAll()
 
     @Transaction
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(rosters: List<Roster>)
+    @Upsert
+    suspend fun upsert(rosters: List<Roster>)
 }

@@ -88,7 +88,6 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.runtime.livedata)
     implementation(libs.ui.tooling.preview)
-    implementation(libs.material.icons.extended)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.constraintlayout.compose)
@@ -128,6 +127,8 @@ dependencies {
 
     androidTestImplementation(libs.mockito.kotlin)
     androidTestImplementation(libs.mockito.android)
+
+
 }
 
 fun getGitHash(): String {

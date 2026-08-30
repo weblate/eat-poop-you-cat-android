@@ -35,7 +35,7 @@ data class Roster(
     val playerId: Uuid,
     val nickname: String,
     val address: String,
-    val sequence: Int?,
+    val sequence: Int = -1,
     val isLeader: Boolean,
     val lastSeen: Instant,
 )

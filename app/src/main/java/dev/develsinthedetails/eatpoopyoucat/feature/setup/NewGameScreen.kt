@@ -14,10 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.visible
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Lan
-import androidx.compose.material.icons.rounded.PhoneAndroid
-import androidx.compose.material.icons.rounded.Wifi
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -112,7 +109,7 @@ fun NewGameScreen(
                         .padding(top = 20.dp)
                 ) {
                     Icon(
-                        Icons.Rounded.PhoneAndroid,
+                        painter = painterResource(id = R.drawable.ic_phone_android_rounded),
                         contentDescription = stringResource(id = R.string.dialog_start_game),
                         modifier = Modifier
                             .size(iconSize)
@@ -148,7 +145,7 @@ fun NewGameScreen(
                         .visible(hasNotificationPermission)
                 ) {
                     Icon(
-                        Icons.Rounded.Lan,
+                        painter = painterResource(id = R.drawable.ic_lan),
                         contentDescription = stringResource(id = R.string.dialog_start_game),
                         modifier = Modifier
                             .size(iconSize)
@@ -168,7 +165,7 @@ fun NewGameScreen(
                         .visible(hasNotificationPermission)
                 ) {
                     Icon(
-                        Icons.Rounded.Wifi,
+                        painter = painterResource(id = R.drawable.ic_wifi),
                         contentDescription = stringResource(id = R.string.dialog_start_game),
                         modifier = Modifier
                             .size(iconSize)
