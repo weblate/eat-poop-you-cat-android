@@ -66,11 +66,10 @@ fun SentenceScreen(
     val uiState by viewModel.uiState.collectAsState()
     val gameMode = uiState.gameMode
     val context = LocalContext.current
-    // todo toast text for net games
     val toastText = stringResource(id = R.string.pass_to_the_next)
     fun submit() {
         viewModel.saveEntry { toDraw(uiState.gameId, uiState.gameMode) }
-        if (!uiState.isError) {
+        if (!uiState.isError && gameMode == GameMode.LOCAL) {
             Toast.makeText(context, toastText, Toast.LENGTH_LONG).show()
         }
     }

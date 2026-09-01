@@ -22,5 +22,5 @@ data class Game(
     @Serializable(InstantSerializer::class)
     val createdAt: Instant? = null,
     @ColumnInfo(defaultValue = "'LOCAL'")
-    val gameMode: GameMode = GameMode.LOCAL //todo remove = GameMode.LOCAL
+    val gameMode: GameMode = GameMode.LOCAL
 )

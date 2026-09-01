@@ -31,7 +31,7 @@ fun NotificationTester() {
 }
 
 
-private fun showNotification(context: Context, channelId: String) {
+fun showNotification(context: Context, channelId: String, destUrl: String) {
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -48,6 +48,7 @@ private fun showNotification(context: Context, channelId: String) {
 
     val yesIntent = Intent(context, NotificationActionReceiver::class.java).apply {
         action = "ACTION_YES"
+        putExtra("DEST_URL", destUrl)
     }
     val yesPendingIntent = PendingIntent.getBroadcast(context, 0, yesIntent, intentFlags)
 

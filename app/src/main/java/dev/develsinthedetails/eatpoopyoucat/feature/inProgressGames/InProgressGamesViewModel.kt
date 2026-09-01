@@ -13,6 +13,7 @@ class InProgressGamesViewModel(
     appSettings: AppSettings,
     repository: AppRepository,
 ) : ViewModel() {
+
     val playerId = appSettings.playerId
     val games: StateFlow<List<GameWithRosters>?> = repository.getInProgressGamesWithRosters()
         .stateIn(

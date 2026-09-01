@@ -203,7 +203,7 @@ fun InProgressGameDetailsScreen(
                                 )
                             )
                         }
-                        if (turns == 0) {
+                        if (turns == 0 && players.size==1 ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_cake),
                                 contentDescription = "Waiting for players. the cake is a lie",

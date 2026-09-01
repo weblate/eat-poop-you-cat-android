@@ -22,6 +22,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.resources.Resources
 import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.android.ext.android.inject
@@ -72,6 +73,11 @@ class Server : Service() {
                     routing {
                         with(gameRouter) {
                             gameRoutes()
+                        }
+                        get("/endpoints") {
+                            // this@routing refers to the root Route object
+                            val routes = this@routing.getAllRoutes()
+                            call.respondText(routes.joinToString("\n"))
                         }
                     }
                     install(StatusPages) {

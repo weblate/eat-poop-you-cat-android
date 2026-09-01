@@ -40,6 +40,7 @@ data class Roster(
     val lastSeen: Instant,
 )
 
+@Serializable
 data class RosterHashAndCount(
     val hash: String,
     val count: Int

@@ -68,26 +68,6 @@ class StartNetGameViewModel(
         }
     }
 
-    sealed class ServerAction {
-        object Idle : ServerAction()
-        object PromptWifiTurnOn : ServerAction()
-        data class StartService(val ipAddress: String) : ServerAction()
-    }
-
-    private val _serverAction = MutableStateFlow<ServerAction>(ServerAction.Idle)
-    val serverAction: StateFlow<ServerAction> = _serverAction.asStateFlow()
-
-    fun onStartServerRequested(isWifiOn: Boolean) {
-        if (isWifiOn||_uiState.value.address!="Server Offline") {
-            _serverAction.value = ServerAction.StartService(_uiState.value.address)
-        } else {
-            _serverAction.value = ServerAction.PromptWifiTurnOn
-        }
-    }
-
-    fun resetAction() {
-        _serverAction.value = ServerAction.Idle
-    }
     fun updateTurnTimeOut(int:String?){
         val turnTimeout = int?.toInt()?:0
         _uiState.update { it.copy(turnTimeout=turnTimeout) }

@@ -84,9 +84,11 @@ class AppRepository(
     suspend fun getAllRosters(): List<Roster> = rosterDao.getAll()
     suspend fun getRostersByGame(id: Uuid): List<Roster> = rosterDao.getAllByGame(id)
     fun getRostersByGameFlow(id: Uuid): Flow<List<Roster>> = rosterDao.getAllByGameFlow(id)
-    fun getLeaderByGame(id: Uuid): Flow<Roster> = rosterDao.getLeaderByGame(id)
-    fun getRostersByPlayer(id: Uuid): Flow<List<Roster>> = rosterDao.getAllByPlayer(id)
-    suspend fun addPlayer(roster: Roster) = rosterDao.insert(roster)
+    suspend fun addPlayer(roster: Roster) {
+        // todo tor address
+        playerDao.upsert(Player(roster.playerId, roster.nickname, lanAddress = roster.address))
+        rosterDao.insert(roster)
+    }
     suspend fun deleteByGame(gameId: Uuid) = rosterDao.deleteByGame(gameId)
     suspend fun deletePlayer(playerId: Uuid) = rosterDao.deletePlayer(playerId)
     suspend fun delete(gameId: Uuid, playerId: Uuid) = rosterDao.delete(gameId, playerId)

@@ -47,6 +47,7 @@ import dev.develsinthedetails.eatpoopyoucat.core.utilities.localDateTimestamp
 import dev.develsinthedetails.eatpoopyoucat.data.models.Game
 import dev.develsinthedetails.eatpoopyoucat.data.models.GameWithRosters
 import dev.develsinthedetails.eatpoopyoucat.data.models.Roster
+import dev.develsinthedetails.eatpoopyoucat.feature.netPlay.services.ManageServerLifecycle
 import org.koin.androidx.compose.koinViewModel
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -58,6 +59,7 @@ fun InProgressGames(
     onBack: () -> Unit
 ) {
     val games by viewModel.games.collectAsState(initial = null)
+    ManageServerLifecycle( onUpdateAddress = {} )
     InProgressGames(games, viewModel.playerId, toGame, onBack)
 }
 

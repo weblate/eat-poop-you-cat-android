@@ -9,7 +9,6 @@ import dev.develsinthedetails.eatpoopyoucat.core.utilities.NetworkUtils
 import dev.develsinthedetails.eatpoopyoucat.data.AppRepository
 import dev.develsinthedetails.eatpoopyoucat.data.models.Player
 import dev.develsinthedetails.eatpoopyoucat.data.models.Roster
-import dev.develsinthedetails.eatpoopyoucat.feature.netPlay.StartNetGameViewModel.ServerAction
 import dev.develsinthedetails.eatpoopyoucat.feature.netPlay.services.Client
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,20 +49,6 @@ class JoinNetGameViewModel(
         )
     )
     val uiState: StateFlow<JoinUiState> = _uiState.asStateFlow()
-    private val _serverAction = MutableStateFlow<ServerAction>(ServerAction.Idle)
-    val serverAction: StateFlow<ServerAction> = _serverAction.asStateFlow()
-
-    fun onStartServerRequested(isWifiOn: Boolean, ipAddress: String?) {
-        if (!isWifiOn || ipAddress == null) {
-            _serverAction.value = ServerAction.PromptWifiTurnOn
-        } else {
-            _serverAction.value = ServerAction.StartService(ipAddress)
-        }
-    }
-
-    fun resetAction() {
-        _serverAction.value = ServerAction.Idle
-    }
 
     fun updateAddress(link: String?) {
         _uiState.update { state ->
