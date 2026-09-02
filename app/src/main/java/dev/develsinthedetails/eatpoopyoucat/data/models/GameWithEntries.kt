@@ -25,7 +25,7 @@ data class GameWithRosters(
     var roster: List<Roster> = emptyList()
 )
 
-fun GameWithRosters.hash(): RosterHashAndCount{
+fun GameWithRosters.hash(): String{
     val sorted = this.roster.map { it.playerId }.sortedBy { it.toString() }
-    return RosterHashAndCount(AppRepository.generateRosterHash(sorted), this.roster.size)
+    return AppRepository.generateRosterHash(sorted)
 }

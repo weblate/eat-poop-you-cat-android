@@ -10,7 +10,6 @@ import dev.develsinthedetails.eatpoopyoucat.data.models.Game
 import dev.develsinthedetails.eatpoopyoucat.data.models.GameWithRosters
 import dev.develsinthedetails.eatpoopyoucat.data.models.Player
 import dev.develsinthedetails.eatpoopyoucat.data.models.Roster
-import dev.develsinthedetails.eatpoopyoucat.data.models.RosterHashAndCount
 import kotlinx.coroutines.flow.Flow
 import java.security.MessageDigest
 import kotlin.time.Clock
@@ -58,9 +57,9 @@ class AppRepository(
 
     suspend fun getPreviouslyUsedNicknames(gameId: Uuid): List<String> {
         val nicknames = getGameWithEntries(gameId)
-            .entries
-            .mapNotNull { it.localPlayerName?.takeIf { name -> name.isNotBlank() } }
-        return nicknames
+            ?.entries
+            ?.mapNotNull { it.localPlayerName?.takeIf { name -> name.isNotBlank() } }
+        return nicknames?: listOf()
     }
 
     // ==========================================
@@ -98,10 +97,12 @@ class AppRepository(
     suspend fun updateRosterPing(address: Uri, gameId: Uuid, time: Instant) =
         rosterDao.updateRosterPing(address, gameId, time)
 
-    suspend fun getRosterHashAndCount(gameId: Uuid): RosterHashAndCount {
+    suspend fun getRosterHash(gameId: Uuid): String {
         val playerIds = rosterDao.getOrderedPlayerIds(gameId)
-        return RosterHashAndCount(generateRosterHash(playerIds), playerIds.size)
+        return generateRosterHash(playerIds)
     }
+
+    fun getActiveHostedGameWithRostersFlow(playerId: Uuid) = gameDao.getActiveHostedGameWithRostersFlow(playerId)
 
     companion object {
         fun generateRosterHash(playerIds: List<Uuid>): String {

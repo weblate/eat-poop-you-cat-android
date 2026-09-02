@@ -39,9 +39,3 @@ data class Roster(
     val isLeader: Boolean,
     val lastSeen: Instant,
 )
-
-@Serializable
-data class RosterHashAndCount(
-    val hash: String,
-    val count: Int
-)

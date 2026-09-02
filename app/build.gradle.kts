@@ -101,7 +101,6 @@ dependencies {
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.compression)
     implementation(libs.ktor.server.content.negotiation)
-    implementation(libs.ktor.server.compression.zstd)
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)

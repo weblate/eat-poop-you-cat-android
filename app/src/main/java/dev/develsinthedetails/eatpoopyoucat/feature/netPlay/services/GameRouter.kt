@@ -43,7 +43,7 @@ class GameRouter(
 ) {
     fun Route.gameRoutes() {
 
-        get<GameRoot.Id> { gameWithRosters ->
+        get<Api.GameRoot.Id> { gameWithRosters ->
             val gameId = gameWithRosters.id
             val game = repository.getGameWithRosters(gameId)
             if (game != null) {
@@ -53,7 +53,7 @@ class GameRouter(
             }
         }
 
-        post<GameRoot.JoinGame> {
+        post<Api.GameRoot.JoinGame> {
             val playerRoster = call.receive<Roster>()
             try {
                 repository.addPlayer(playerRoster)
@@ -64,56 +64,69 @@ class GameRouter(
             call.respond(HttpStatusCode.OK, "Successfully joined")
         }
 
-        get<GameRoot.Id.AskTakeTurn> { askTakeTurn ->
+        post<Api.GameRoot.Id.AskTakeTurn> { askTakeTurn ->
             val game = repository.getGameWithEntries(askTakeTurn.parent.id)
-            val gameRosters = repository.getGameWithRosters(askTakeTurn.parent.id) ?: return@get
-
-            val leaderAddress = gameRosters.roster.first { it.isLeader }.address
-
-            val entries = game.entries.toMutableList()
-
-            // update game entries if needed
-            val missing = client.updateGame(leaderAddress, game)
-            missing.forEach {
-                repository.createEntry(it)
-                entries.add(it)
+            if(game == null) {
+                call.respond(HttpStatusCode.NotFound)
+                return@post
             }
-            // update Roster and Game
-            val missingPlayers =
-                client.updateRoster(leaderAddress, askTakeTurn.parent.id, gameRosters.hash())
-            if (missingPlayers != null) {
-                repository.updateGame(missingPlayers.game)
-                missingPlayers.roster.forEach {
-                    repository.upsertRoster(it)
+            val gameRosters = repository.getGameWithRosters(askTakeTurn.parent.id)
+            if (gameRosters == null) {
+                call.respond(HttpStatusCode.NotFound)
+                return@post
+            }
+
+            val leader = gameRosters.roster.first { it.isLeader }
+            var lastEntry : Entry? = null
+
+            // if I'm the leader I have the latest
+            if (leader.playerId == appSettings.playerId) {
+                lastEntry=game.entries.maxBy { it.sequence }
+            } else{
+                // update game entries if needed
+                val missing = client.updateGame(leader.address, game)
+                missing.forEach {
+                    repository.createEntry(it)
+                    if((lastEntry?.sequence ?: -1) < it.sequence)
+                        lastEntry = (it)
+                }
+                // update Roster and Game
+                val missingPlayers =
+                    client.updateRoster(leader.address, askTakeTurn.parent.id, gameRosters.hash())
+                if (missingPlayers != null) {
+                    repository.updateGame(missingPlayers.game)
+                    missingPlayers.roster.forEach {
+                        repository.upsertRoster(it)
+                    }
                 }
             }
-            val previousEntry: Entry = entries.maxBy { it.sequence }
-            val dest = if (previousEntry.type == EntryType.Sentence)
-                "${appSettings.drawDeepLink}/?gameId=${previousEntry.gameId}"
+            val dest = if (lastEntry?.type == EntryType.Sentence)
+                "${appSettings.drawDeepLink}/?gameId=${askTakeTurn.parent.id}"
             else
-                "${appSettings.sentenceDeepLink}/?gameId=${previousEntry.gameId}"
-            showNotification(applicationContext, "turn_channel", dest)
+                "${appSettings.sentenceDeepLink}/?gameId=${askTakeTurn.parent.id}"
+            showNotification(applicationContext, "webserver", dest)
+
         }
 
-        put<GameRoot.TakeTurn> {
+        put<Api.GameRoot.TakeTurn> {
             val entry = call.receive<Entry>()
             repository.upsertEntry(entry)
         }
 
-        get<Ping> {
+        get<Api.Ping> {
             call.respond(HttpStatusCode.OK)
         }
 
-        get<GameRoot.Id.UpdateRoster> { updateRoster ->
-            val myHash = repository.getRosterHashAndCount(updateRoster.parent.id)
-            if (updateRoster.count != myHash.count || updateRoster.hash != myHash.hash) {
+        get<Api.GameRoot.Id.UpdateRoster> { updateRoster ->
+            val myHash = repository.getRosterHash(updateRoster.parent.id)
+            if (updateRoster.hash != myHash) {
                 call.respond(repository.getGameWithRosters(updateRoster.parent.id)!!)
             } else {
                 call.respond(HttpStatusCode.OK)
             }
         }
 
-        post<GameRoot.Id.UpdateGame> { updateGame ->
+        post<Api.GameRoot.Id.UpdateGame> { updateGame ->
             val knownTurns = call.receive<List<Int>>()
             call.respond(repository.getMissingEntries(updateGame.parent.id, knownTurns))
         }
